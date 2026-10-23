@@ -1,0 +1,18 @@
+[
+  {
+    "id": "monster_01",
+    "name": "方塊殭屍 (Square Zombie)",
+    "sprite": "zombie_monster.png",
+    "hp": 20,
+    "reward_gold": 10,
+    "notes": "手繪方塊人型，向前伸展雙臂"
+  },
+  {
+    "id": "monster_02",
+    "name": "冠帽小戰士 (Little Knight Boss)",
+    "sprite": "knight_monster.png",
+    "hp": 60,
+    "reward_gold": 50,
+    "notes": "戴著三刺皇冠，手持長劍的小騎士"
+  }
+]

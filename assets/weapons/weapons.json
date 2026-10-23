@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "name": "鐮刀",
+    "price": 50,
+    "attackPower": 8,
+    "image": "final/01-scythe.png"
+  },
+  {
+    "id": 2,
+    "name": "長刀",
+    "price": 100,
+    "attackPower": 9,
+    "image": "final/02-longsword.png"
+  },
+  {
+    "id": 3,
+    "name": "弓",
+    "price": 250,
+    "attackPower": 8,
+    "image": "final/03-bow.png"
+  },
+  {
+    "id": 4,
+    "name": "M1911",
+    "price": 550,
+    "attackPower": 10,
+    "image": "final/04-m1911.png"
+  },
+  {
+    "id": 5,
+    "name": "GL06",
+    "price": 900,
+    "attackPower": 20,
+    "image": "final/05-gl06.png"
+  },
+  {
+    "id": 6,
+    "name": "AK-47",
+    "price": 1500,
+    "attackPower": 15,
+    "image": "final/06-ak47.png"
+  },
+  {
+    "id": 7,
+    "name": "M134",
+    "price": 2000,
+    "attackPower": 25,
+    "image": "final/07-m134.png"
+  }
+]

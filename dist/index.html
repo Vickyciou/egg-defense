@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#162a22" />
+    <meta name="description" content="蛋仔守城——守住城門、擊退怪物，並用金幣升級武器。" />
+    <title>蛋仔守城</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="game-page">
+      <header class="brand-bar" aria-label="遊戲標題">
+        <div class="brand-mark">蛋</div>
+        <div>
+          <p>CASTLE DEFENSE</p>
+          <h1>蛋仔守城</h1>
+        </div>
+        <div class="desktop-help"><kbd>↑↓←→</kbd> 移動 <span></span> <kbd>SPACE</kbd> 攻擊</div>
+      </header>
+
+      <main id="game-shell" aria-label="蛋仔守城遊戲區">
+        <canvas id="game-canvas" width="1600" height="900" aria-label="戰鬥畫面"></canvas>
+
+        <section id="hud" class="hud is-hidden" aria-live="polite">
+          <div class="hud-card kill-card">
+            <span class="hud-icon target-icon"></span>
+            <div><small>已擊退</small><strong id="kill-count">0 / 20</strong></div>
+          </div>
+          <div class="stage-pill"><small>目前關卡</small><strong id="stage-label">第 1 關</strong></div>
+          <div class="hud-right">
+            <div class="coin-pill"><span class="coin">$</span><strong id="gold-count">0</strong></div>
+            <button id="pause-button" class="round-button" type="button" aria-label="暫停遊戲">Ⅱ</button>
+          </div>
+          <div class="weapon-chip">
+            <span class="weapon-thumb" id="weapon-thumb"><span>✊</span></span>
+            <div><small>目前武器</small><strong id="weapon-label">拳頭</strong></div>
+          </div>
+        </section>
+
+        <div id="joystick" class="joystick is-hidden" aria-label="虛擬搖桿">
+          <div class="joystick-ring"><div id="joystick-knob" class="joystick-knob"></div></div>
+        </div>
+        <button id="attack-button" class="attack-button is-hidden" type="button" aria-label="按住持續攻擊">
+          <span>✊</span><strong>攻擊</strong>
+        </button>
+
+        <section id="start-screen" class="screen-layer screen-layer--intro">
+          <div class="intro-card paper-panel">
+            <p class="eyebrow">TWO-STAGE DEMO</p>
+            <h2>城門告急，<br /><em>輪到你上場！</em></h2>
+            <p class="intro-copy">在怪物闖入左側城門前消滅牠們。移動、瞄準好直線，按住攻擊鍵迎戰！</p>
+            <div class="rules-row">
+              <div><b>20</b><span>首關怪物</span></div>
+              <i></i>
+              <div><b>13s</b><span>守門時限</span></div>
+              <i></i>
+              <div><b>2</b><span>完整關卡</span></div>
+            </div>
+            <button id="enter-select-button" class="primary-button" type="button">選擇武器 <span>→</span></button>
+          </div>
+        </section>
+
+        <section id="weapon-screen" class="screen-layer is-hidden" aria-labelledby="weapon-screen-title">
+          <div class="modal-card selection-card">
+            <p class="eyebrow" id="selection-kicker">出戰準備</p>
+            <h2 id="weapon-screen-title">選擇這一關的武器</h2>
+            <p id="selection-copy">第一關只能使用拳頭，靠近怪物再出拳。</p>
+            <div id="owned-weapons" class="owned-weapons"></div>
+            <button id="start-level-button" class="primary-button" type="button">開始第 1 關 <span>→</span></button>
+          </div>
+        </section>
+
+        <section id="shop-screen" class="screen-layer is-hidden" aria-labelledby="shop-title">
+          <div class="modal-card shop-card">
+            <div class="shop-heading">
+              <div>
+                <p class="eyebrow">關卡完成</p>
+                <h2 id="shop-title">補給小舖</h2>
+                <p>商店只開這一次。可以連續買下負擔得起的武器。</p>
+              </div>
+              <div class="shop-wallet"><span class="coin">$</span><strong id="shop-gold">0</strong></div>
+            </div>
+            <div id="shop-list" class="shop-list"></div>
+            <button id="finish-shop-button" class="primary-button" type="button">完成購買 <span>→</span></button>
+          </div>
+        </section>
+
+        <section id="result-screen" class="screen-layer is-hidden" aria-live="assertive">
+          <div class="modal-card result-card">
+            <div id="result-badge" class="result-badge">!</div>
+            <p class="eyebrow" id="result-kicker">城門失守</p>
+            <h2 id="result-title">差一點就守住了</h2>
+            <p id="result-copy">本次獲得的金幣不會結算，再試一次吧！</p>
+            <div id="result-stats" class="result-stats"></div>
+            <button id="result-button" class="primary-button" type="button">重新挑戰 <span>↻</span></button>
+          </div>
+        </section>
+
+        <section id="pause-screen" class="screen-layer is-hidden" aria-labelledby="pause-title">
+          <div class="modal-card pause-card">
+            <div class="pause-symbol">Ⅱ</div>
+            <p class="eyebrow">休息一下</p>
+            <h2 id="pause-title">遊戲已暫停</h2>
+            <button id="resume-button" class="primary-button" type="button">繼續守城</button>
+            <button id="restart-button" class="text-button" type="button">重新開始本關</button>
+          </div>
+        </section>
+
+        <div id="rotate-screen" class="rotate-screen">
+          <div class="phone-icon"><span></span></div>
+          <strong>請旋轉裝置</strong>
+          <p>橫向畫面才能看清整座戰場</p>
+        </div>
+      </main>
+      <p class="footer-note">阻止怪物抵達左側城門 · 攻擊永遠朝向右方</p>
+    </div>
+    <script src="game.js"></script>
+  </body>
+</html>
