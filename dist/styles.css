@@ -410,6 +410,9 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
 .paper-panel,
 .modal-card { background: var(--paper); border: 3px solid var(--ink); box-shadow: 8px 9px 0 rgba(12,30,23,.72); border-radius: 22px 17px 25px 18px; }
 .intro-card { width: min(490px, 48%); margin-left: 4%; padding: clamp(20px, 3vw, 46px); transform: rotate(-.3deg); }
+.intro-eyebrow-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+.intro-eyebrow-row .eyebrow { margin: 0; }
+.version-badge { display: inline-block; background: #e9f4d3; border: 1.5px solid #55966a; color: #22543d; font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 999px; letter-spacing: .04em; white-space: nowrap; }
 .eyebrow { margin: 0 0 9px; color: var(--orange-dark); font-size: clamp(9px, .75vw, 12px); letter-spacing: .2em; font-weight: 900; text-transform: uppercase; }
 .intro-card h2,
 .modal-card h2 { margin: 0; font-family: "Yusei Magic", sans-serif; font-size: clamp(24px, 2.8vw, 48px); line-height: 1.12; letter-spacing: .04em; }

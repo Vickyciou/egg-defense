@@ -427,11 +427,12 @@
   }
 
   function loadImages() {
+    const vTag = encodeURIComponent(window.APP_VERSION || "v2.2");
     return Promise.all(Object.entries(assetPaths).map(([key, path]) => new Promise(resolve => {
       const img = new Image();
       img.onload = () => { images[key] = img; resolve(); };
       img.onerror = resolve;
-      img.src = path;
+      img.src = `${path}?v=${vTag}`;
     })));
   }
 

@@ -24,6 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache-bust assets and generate version.json
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          VERSION_TAG="v2.2-${SHORT_SHA}"
+          sed -i "s/styles\.css?v=2\.2/styles.css?v=${VERSION_TAG}/g" dist/index.html
+          sed -i "s/game\.js?v=2\.2/game.js?v=${VERSION_TAG}/g" dist/index.html
+          sed -i "s/window\.APP_VERSION = \"v2\.2\"/window.APP_VERSION = \"${VERSION_TAG}\"/g" dist/index.html
+          sed -i "s/>v2\.2</>${VERSION_TAG}</g" dist/index.html
+          printf '{"version":"%s","sha":"%s","builtAt":"%s"}\n' "$VERSION_TAG" "$SHORT_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/version.json
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
