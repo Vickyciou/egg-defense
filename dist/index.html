@@ -4,8 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#162a22" />
-    <meta name="description" content="蛋仔守城——守住城門、擊退怪物，並用金幣升級武器。" />
-    <title>蛋仔守城</title>
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="蛋仔守城" />
+    <meta name="description" content="蛋仔守城——守住城門、擊退 10 種怪物大軍，並隨時開啟商店用金幣解鎖與強化 12 種武器！" />
+    <title>蛋仔守城 V2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet" />
@@ -14,32 +18,97 @@
   <body>
     <div class="game-page">
       <header class="brand-bar" aria-label="遊戲標題">
-        <div class="brand-mark">蛋</div>
-        <div>
-          <p>CASTLE DEFENSE</p>
-          <h1>蛋仔守城</h1>
+        <div class="brand-mark" data-dev-trigger>蛋</div>
+        <div class="brand-title-box" data-dev-trigger>
+          <p>CASTLE DEFENSE V2</p>
+          <h1 id="dev-secret-title">蛋仔守城</h1>
         </div>
-        <div class="desktop-help"><kbd>↑↓←→</kbd> 移動 <span></span> <kbd>SPACE</kbd> 攻擊</div>
+        <div class="desktop-help">
+          <kbd>↑↓←→</kbd> 移動 <span></span> <kbd>SPACE</kbd> 攻擊 <span></span> <kbd>Q</kbd> 切換武器 <span></span> <kbd>B</kbd> 隨時開商店
+        </div>
       </header>
 
       <main id="game-shell" aria-label="蛋仔守城遊戲區">
         <canvas id="game-canvas" width="1600" height="900" aria-label="戰鬥畫面"></canvas>
 
         <section id="hud" class="hud is-hidden" aria-live="polite">
-          <div class="hud-card kill-card">
-            <span class="hud-icon target-icon"></span>
-            <div><small>已擊退</small><strong id="kill-count">0 / 20</strong></div>
+          <div class="hud-left-group">
+            <div class="hud-card gate-card">
+              <span class="hud-icon shield-icon">🏰</span>
+              <div class="gate-info">
+                <small>城門耐久</small>
+                <strong id="gate-hp-count">200 / 200</strong>
+                <div class="gate-bar-track"><div id="gate-hp-bar" class="gate-bar-fill"></div></div>
+              </div>
+            </div>
+            <div class="hud-card kill-card">
+              <span class="hud-icon target-icon"></span>
+              <div><small>本關進度</small><strong id="kill-count">0 / 18</strong></div>
+            </div>
           </div>
-          <div class="stage-pill"><small>目前關卡</small><strong id="stage-label">第 1 關</strong></div>
+
+          <div class="stage-pill" data-dev-trigger>
+            <small id="stage-subtitle">初陣・草地上的方塊屍潮</small>
+            <strong id="stage-label">第 1 / 8 關</strong>
+          </div>
+
           <div class="hud-right">
-            <div class="coin-pill"><span class="coin">$</span><strong id="gold-count">0</strong></div>
+            <button id="dev-hud-button" class="shop-pill-button dev-pill-button is-hidden" type="button" title="開關開發者測試面板">🛠️ 測試面板</button>
+            <div id="coin-pill" class="coin-pill" title="點擊開啟補給小舖"><span class="coin">$</span><strong id="gold-count">0</strong></div>
+            <button id="hud-shop-button" class="shop-pill-button" type="button" title="隨時開啟補給小舖 (快捷鍵 B)">🛒 商店</button>
             <button id="pause-button" class="round-button" type="button" aria-label="暫停遊戲">Ⅱ</button>
           </div>
-          <div class="weapon-chip">
+
+          <button id="weapon-chip" class="weapon-chip" type="button" title="點擊或按 Q 切換已擁有武器">
             <span class="weapon-thumb" id="weapon-thumb"><span>✊</span></span>
-            <div><small>目前武器</small><strong id="weapon-label">拳頭</strong></div>
-          </div>
+            <div>
+              <small id="weapon-switch-hint">目前武器（按 Q 切換）</small>
+              <strong id="weapon-label">拳頭 ★1</strong>
+            </div>
+          </button>
         </section>
+
+        <aside id="dev-panel" class="dev-panel is-hidden" aria-label="開發者測試模式面板">
+          <div class="dev-panel-header">
+            <div class="dev-panel-title">
+              <strong>🛠️ 開發者測試模式</strong>
+              <span id="dev-status-tag" class="dev-status-tag">沙盒測試中（城門不死・停止自動波次）</span>
+            </div>
+            <div class="dev-panel-actions">
+              <button id="dev-sandbox-toggle" class="dev-mini-btn is-active" type="button">🔒 沙盒無敵：開</button>
+              <button id="dev-clear-monsters" class="dev-mini-btn" type="button">🧹 清空怪物</button>
+              <button id="dev-add-gold" class="dev-mini-btn" type="button">💰 +$10000</button>
+              <button id="dev-minimize-btn" class="dev-mini-btn" type="button">收合 ▲</button>
+              <button id="dev-exit-btn" class="dev-mini-btn dev-danger-btn" type="button">退出開發者</button>
+            </div>
+          </div>
+          <div id="dev-panel-body" class="dev-panel-body">
+            <div class="dev-section">
+              <div class="dev-section-head">
+                <span>⚔️ 任選武器立即試用（共 12 把）</span>
+                <div class="dev-tier-group">
+                  <small>切換全武器星級：</small>
+                  <button class="dev-tier-btn" type="button" data-dev-tier="1">★1</button>
+                  <button class="dev-tier-btn" type="button" data-dev-tier="2">★2</button>
+                  <button class="dev-tier-btn is-active" type="button" data-dev-tier="3">★3 滿級</button>
+                </div>
+              </div>
+              <div id="dev-weapon-grid" class="dev-chip-grid"></div>
+            </div>
+            <div class="dev-section">
+              <div class="dev-section-head">
+                <span>👾 點擊呼叫怪物上場測試（共 10 種）</span>
+                <div class="dev-tier-group">
+                  <small>單次呼叫數量：</small>
+                  <button class="dev-count-btn is-active" type="button" data-dev-count="1">×1 隻</button>
+                  <button class="dev-count-btn" type="button" data-dev-count="3">×3 隻</button>
+                  <button class="dev-count-btn" type="button" data-dev-count="5">×5 隻</button>
+                </div>
+              </div>
+              <div id="dev-monster-grid" class="dev-chip-grid"></div>
+            </div>
+          </div>
+        </aside>
 
         <div id="joystick" class="joystick is-hidden" aria-label="虛擬搖桿">
           <div class="joystick-ring"><div id="joystick-knob" class="joystick-knob"></div></div>
@@ -50,27 +119,50 @@
 
         <section id="start-screen" class="screen-layer screen-layer--intro">
           <div class="intro-card paper-panel">
-            <p class="eyebrow">TWO-STAGE DEMO</p>
-            <h2>城門告急，<br /><em>輪到你上場！</em></h2>
-            <p class="intro-copy">在怪物闖入左側城門前消滅牠們。移動、瞄準好直線，按住攻擊鍵迎戰！</p>
+            <p class="eyebrow" data-dev-trigger>蛋仔守城 · 8-STAGE CAMPAIGN V2</p>
+            <h2 data-dev-trigger>十種怪物壓境，<br /><em>守住蛋仔城門！</em></h2>
+            <p class="intro-copy">
+              怪物突破防線會依其攻擊力重創城門（200 HP）。親手擊斃怪物賺取金幣（就算挑戰失敗也會保留打到的金幣！），並可隨時開啟補給小舖解鎖與強化 12 種特色武器！
+            </p>
             <div class="rules-row">
-              <div><b>20</b><span>首關怪物</span></div>
+              <div><b>8</b><span>戰役關卡</span></div>
               <i></i>
-              <div><b>13s</b><span>守門時限</span></div>
+              <div><b>10</b><span>怪物軍團</span></div>
               <i></i>
-              <div><b>2</b><span>完整關卡</span></div>
+              <div><b>12</b><span>特色武器</span></div>
             </div>
-            <button id="enter-select-button" class="primary-button" type="button">選擇武器 <span>→</span></button>
+            <button id="enter-select-button" class="primary-button" type="button">準備出戰 <span>→</span></button>
           </div>
         </section>
 
         <section id="weapon-screen" class="screen-layer is-hidden" aria-labelledby="weapon-screen-title">
           <div class="modal-card selection-card">
-            <p class="eyebrow" id="selection-kicker">出戰準備</p>
-            <h2 id="weapon-screen-title">選擇這一關的武器</h2>
-            <p id="selection-copy">第一關只能使用拳頭，靠近怪物再出拳。</p>
-            <div id="owned-weapons" class="owned-weapons"></div>
-            <button id="start-level-button" class="primary-button" type="button">開始第 1 關 <span>→</span></button>
+            <div class="selection-header-row">
+              <div>
+                <p class="eyebrow" id="selection-kicker">出戰準備</p>
+                <h2 id="weapon-screen-title">選擇主戰武器</h2>
+                <p id="selection-copy">選擇這關的起始武器；戰鬥途中隨時可按 Q 切換武器，或按 B 隨時開啟補給小舖！</p>
+              </div>
+              <div class="modal-actions">
+                <button id="select-shop-button" class="secondary-button" type="button">🛒 開啟補給小舖</button>
+                <button id="start-level-button" class="primary-button" type="button">開始第 1 關 <span>→</span></button>
+              </div>
+            </div>
+            <div id="stage-preview" class="stage-preview"></div>
+            <div class="carousel-stage">
+              <button id="owned-prev-page" class="side-page-arrow side-page-arrow--left is-invisible" type="button" aria-label="上一頁">
+                <span class="arrow-glyph">‹</span>
+                <small>上一頁</small>
+              </button>
+              <div id="owned-weapons" class="owned-weapons"></div>
+              <button id="owned-next-page" class="side-page-arrow side-page-arrow--right is-invisible" type="button" aria-label="下一頁">
+                <span class="arrow-glyph">›</span>
+                <small>下一頁</small>
+              </button>
+            </div>
+            <div id="owned-pager" class="carousel-dots-row is-hidden">
+              <span id="owned-page-indicator" class="shop-page-indicator">第 1 / 1 頁</span>
+            </div>
           </div>
         </section>
 
@@ -78,14 +170,35 @@
           <div class="modal-card shop-card">
             <div class="shop-heading">
               <div>
-                <p class="eyebrow">關卡完成</p>
-                <h2 id="shop-title">補給小舖</h2>
-                <p>商店只開這一次。可以連續買下負擔得起的武器。</p>
+                <p class="eyebrow" id="shop-kicker">隨身補給小舖</p>
+                <h2 id="shop-title">戰地補給小舖</h2>
+                <p id="shop-subtitle">購買新武器，或將已擁有的武器升星強化（提升攻擊力、攻速與射程）。</p>
               </div>
-              <div class="shop-wallet"><span class="coin">$</span><strong id="shop-gold">0</strong></div>
+              <div class="shop-heading-actions">
+                <div class="shop-wallet"><span class="coin">$</span><strong id="shop-gold">0</strong></div>
+                <button id="finish-shop-button" class="primary-button shop-continue-btn" type="button">前往下一關準備 <span>→</span></button>
+              </div>
             </div>
-            <div id="shop-list" class="shop-list"></div>
-            <button id="finish-shop-button" class="primary-button" type="button">完成購買 <span>→</span></button>
+            <div id="shop-feedback" class="shop-feedback is-hidden" role="status" aria-live="polite"></div>
+            <div class="shop-tabs-bar">
+              <div class="shop-tabs" id="shop-tabs" role="tablist" aria-label="武器分類分頁">
+                <button class="shop-tab is-active" type="button" data-shop-page="0">第 1 頁 · 近戰與輕武</button>
+                <button class="shop-tab" type="button" data-shop-page="1">第 2 頁 · 現代槍械</button>
+                <button class="shop-tab" type="button" data-shop-page="2">第 3 頁 · 終極神兵</button>
+              </div>
+              <span id="shop-page-indicator" class="shop-page-indicator">第 1 / 3 頁</span>
+            </div>
+            <div class="carousel-stage">
+              <button id="shop-prev-page" class="side-page-arrow side-page-arrow--left" type="button" aria-label="上一頁">
+                <span class="arrow-glyph">‹</span>
+                <small>上一頁</small>
+              </button>
+              <div id="shop-list" class="shop-list"></div>
+              <button id="shop-next-page" class="side-page-arrow side-page-arrow--right" type="button" aria-label="下一頁">
+                <span class="arrow-glyph">›</span>
+                <small>下一頁</small>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -94,9 +207,12 @@
             <div id="result-badge" class="result-badge">!</div>
             <p class="eyebrow" id="result-kicker">城門失守</p>
             <h2 id="result-title">差一點就守住了</h2>
-            <p id="result-copy">本次獲得的金幣不會結算，再試一次吧！</p>
+            <p id="result-copy">本關擊斃怪物賺到的金幣已全數保留，可先去補給小舖強化武器再挑戰！</p>
             <div id="result-stats" class="result-stats"></div>
-            <button id="result-button" class="primary-button" type="button">重新挑戰 <span>↻</span></button>
+            <div class="modal-actions">
+              <button id="result-shop-button" class="secondary-button" type="button">🛒 開啟補給小舖</button>
+              <button id="result-button" class="primary-button" type="button">重新挑戰 <span>↻</span></button>
+            </div>
           </div>
         </section>
 
@@ -105,8 +221,11 @@
             <div class="pause-symbol">Ⅱ</div>
             <p class="eyebrow">休息一下</p>
             <h2 id="pause-title">遊戲已暫停</h2>
-            <button id="resume-button" class="primary-button" type="button">繼續守城</button>
-            <button id="restart-button" class="text-button" type="button">重新開始本關</button>
+            <div class="modal-actions">
+              <button id="pause-shop-button" class="secondary-button" type="button">🛒 開啟補給小舖</button>
+              <button id="resume-button" class="primary-button" type="button">繼續守城</button>
+            </div>
+            <button id="restart-button" class="text-button" type="button">重新開始本關（保留已得金幣）</button>
           </div>
         </section>
 
@@ -116,7 +235,7 @@
           <p>橫向畫面才能看清整座戰場</p>
         </div>
       </main>
-      <p class="footer-note">阻止怪物抵達左側城門 · 攻擊永遠朝向右方</p>
+      <p class="footer-note">阻止怪物抵達左側城門 · 攻擊永遠朝向右方 · 按 Q 切換武器 · 按 B 或點右上角「🛒 商店」隨時採購</p>
     </div>
     <script src="game.js"></script>
   </body>

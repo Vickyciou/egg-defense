@@ -47,5 +47,33 @@
     "price": 2000,
     "attackPower": 25,
     "image": "final/07-m134.png"
+  },
+  {
+    "id": 8,
+    "name": "AWM",
+    "price": 2800,
+    "attackPower": 75,
+    "image": "final/08-awm.png"
+  },
+  {
+    "id": 9,
+    "name": "飛刀",
+    "price": 3500,
+    "attackPower": 60,
+    "image": "final/09-throwing-knife.png"
+  },
+  {
+    "id": 10,
+    "name": "愛國者",
+    "price": 5000,
+    "attackPower": 160,
+    "image": "final/10-patriot.png"
+  },
+  {
+    "id": 11,
+    "name": "RPG",
+    "price": 4200,
+    "attackPower": 115,
+    "image": "final/11-rpg.png"
   }
 ]

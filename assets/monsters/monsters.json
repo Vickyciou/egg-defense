@@ -4,6 +4,7 @@
     "name": "方塊殭屍 (Square Zombie)",
     "sprite": "zombie_monster.png",
     "hp": 20,
+    "attack": 10,
     "reward_gold": 10,
     "notes": "手繪方塊人型，向前伸展雙臂"
   },
@@ -12,7 +13,85 @@
     "name": "冠帽小戰士 (Little Knight Boss)",
     "sprite": "knight_monster.png",
     "hp": 60,
+    "attack": 20,
     "reward_gold": 50,
     "notes": "戴著三刺皇冠，手持長劍的小騎士"
+  },
+  {
+    "id": "monster_03",
+    "name": "裝甲騎兵 (Armored Cavalry)",
+    "sprite": "armored_cavalry_monster.png",
+    "hp": 100,
+    "attack": 25,
+    "reward_gold": 80,
+    "notes": "身穿鎧甲與頭盔、手持菱形長槍，騎乘裝甲猛獸的騎兵"
+  },
+  {
+    "id": "monster_04",
+    "name": "忍者 (Ninja)",
+    "sprite": "ninja_monster.png",
+    "hp": 150,
+    "attack": 35,
+    "reward_gold": 120,
+    "notes": "蒙面綁頭帶，右手持大型風魔手裡劍、左手持忍刀的敏捷忍者"
+  },
+  {
+    "id": "monster_05",
+    "name": "魔法師 (Mage)",
+    "sprite": "mage_monster.png",
+    "hp": 195,
+    "attack": 40,
+    "attack_variants": {
+      "orb": 40,
+      "meteor": 30,
+      "lightning": 45
+    },
+    "reward_gold": 160,
+    "notes": "頭戴星紋尖頂巫師帽、手持寶珠法杖；具備魔法球(40)、隕石火球(30)、閃電(45)三種魔法攻擊"
+  },
+  {
+    "id": "monster_06",
+    "name": "惡魔靈 (Demon Spirit)",
+    "sprite": "demon_spirit_monster.png",
+    "hp": 250,
+    "attack": 50,
+    "reward_gold": 200,
+    "notes": "尖角兜帽幽靈形態，雙臂展開並手持魔眼法杖的惡魔靈體"
+  },
+  {
+    "id": "monster_07",
+    "name": "死神 (Grim Reaper)",
+    "sprite": "grim_reaper_monster.png",
+    "hp": 300,
+    "attack": 75,
+    "reward_gold": 250,
+    "notes": "頭頂燃燒靈魂火焰的死神兜帽，右手持靈魂燈器、左手持巨型鐮刀"
+  },
+  {
+    "id": "monster_08",
+    "name": "手槍兵 (Pistol Soldier)",
+    "sprite": "pistol_soldier_monster.png",
+    "hp": 500,
+    "attack": 125,
+    "reward_gold": 400,
+    "notes": "頭戴鋼盔與披風長袍，單手舉槍射擊，身旁伴隨骷髏標記光環"
+  },
+  {
+    "id": "monster_09",
+    "name": "AI-Gemini",
+    "sprite": "ai_gemini_monster.png",
+    "hp": 750,
+    "attack": 150,
+    "reward_gold": 600,
+    "notes": "配備頭頂感測晶體與幾何機甲護具的高科技人形機器人"
+  },
+  {
+    "id": "monster_10",
+    "name": "刀之首領 (Blade Boss)",
+    "sprite": "blade_boss_monster.png",
+    "hp": 1000,
+    "attack": 175,
+    "reward_gold": 800,
+    "notes": "頭戴寶石三刺皇冠、身披印有 S 標誌的立領披風，手持巨型大刀的終極首領"
   }
 ]
