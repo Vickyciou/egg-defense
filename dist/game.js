@@ -512,7 +512,22 @@
     });
   }
 
+  function resetTouchControls() {
+    joystick.pointerId = null;
+    joystick.touchId = null;
+    joystick.x = 0;
+    joystick.y = 0;
+    if (ui["joystick-knob"]) {
+      ui["joystick-knob"].style.transform = "translate(0,0)";
+    }
+    attackHeld = false;
+    if (ui["attack-button"]) {
+      ui["attack-button"].classList.remove("is-pressed");
+    }
+  }
+
   function showControls(show) {
+    if (!show) resetTouchControls();
     ui.hud.classList.toggle("is-hidden", !show);
     ui.joystick.classList.toggle("is-hidden", !show);
     ui["attack-button"].classList.toggle("is-hidden", !show);
@@ -1888,23 +1903,29 @@
     else keys.delete(event.code);
   }
 
-  function updateJoystick(event) {
-    const rect = ui.joystick.getBoundingClientRect();
+  function updateJoystickFromPoint(clientX, clientY) {
+    const ring = ui.joystick.querySelector(".joystick-ring") || ui.joystick;
+    const rect = ring.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    let dx = event.clientX - centerX;
-    let dy = event.clientY - centerY;
-    const max = rect.width * 0.28;
+    let dx = clientX - centerX;
+    let dy = clientY - centerY;
+    const max = rect.width * 0.34;
     const length = Math.hypot(dx, dy);
-    if (length > max) { dx = (dx / length) * max; dy = (dy / length) * max; }
+    if (length > max) {
+      dx = (dx / length) * max;
+      dy = (dy / length) * max;
+    }
     joystick.x = dx / max;
     joystick.y = dy / max;
     ui["joystick-knob"].style.transform = `translate(${dx}px, ${dy}px)`;
   }
 
   function endJoystick(event) {
-    if (event.pointerId !== joystick.pointerId) return;
+    if (event && event.pointerId !== undefined && event.pointerId !== joystick.pointerId) return;
     joystick.pointerId = null;
+    joystick.touchId = null;
     joystick.x = 0;
     joystick.y = 0;
     ui["joystick-knob"].style.transform = "translate(0,0)";
@@ -2206,29 +2227,84 @@
   });
 
   ui.joystick.addEventListener("pointerdown", event => {
-    if (joystick.pointerId !== null) return;
+    event.preventDefault();
     joystick.pointerId = event.pointerId;
-    ui.joystick.setPointerCapture(event.pointerId);
-    updateJoystick(event);
-  });
-  ui.joystick.addEventListener("pointermove", event => {
-    if (event.pointerId === joystick.pointerId) updateJoystick(event);
-  });
-  ui.joystick.addEventListener("pointerup", endJoystick);
-  ui.joystick.addEventListener("pointercancel", endJoystick);
+    try { ui.joystick.setPointerCapture(event.pointerId); } catch {}
+    updateJoystickFromPoint(event.clientX, event.clientY);
+  }, { passive: false });
+  window.addEventListener("pointermove", event => {
+    if (joystick.pointerId !== null && event.pointerId === joystick.pointerId) {
+      updateJoystickFromPoint(event.clientX, event.clientY);
+    }
+  }, { passive: false });
+  window.addEventListener("pointerup", endJoystick);
+  window.addEventListener("pointercancel", endJoystick);
+
+  ui.joystick.addEventListener("touchstart", event => {
+    if (window.PointerEvent) return;
+    event.preventDefault();
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    joystick.touchId = touch.identifier;
+    updateJoystickFromPoint(touch.clientX, touch.clientY);
+  }, { passive: false });
+  ui.joystick.addEventListener("touchmove", event => {
+    if (window.PointerEvent) return;
+    event.preventDefault();
+    for (const touch of event.changedTouches) {
+      if (touch.identifier === joystick.touchId) {
+        updateJoystickFromPoint(touch.clientX, touch.clientY);
+        break;
+      }
+    }
+  }, { passive: false });
+  const endTouchJoystick = event => {
+    if (window.PointerEvent) return;
+    for (const touch of event.changedTouches) {
+      if (touch.identifier === joystick.touchId) {
+        endJoystick();
+        break;
+      }
+    }
+  };
+  ui.joystick.addEventListener("touchend", endTouchJoystick);
+  ui.joystick.addEventListener("touchcancel", endTouchJoystick);
 
   const attackButton = ui["attack-button"];
-  attackButton.addEventListener("pointerdown", event => {
-    attackButton.setPointerCapture(event.pointerId);
+  let attackPointerId = null;
+  const startTouchAttack = event => {
+    event.preventDefault();
+    if (event.pointerId !== undefined) {
+      attackPointerId = event.pointerId;
+      try { attackButton.setPointerCapture(event.pointerId); } catch {}
+    }
     attackHeld = true;
     attackButton.classList.add("is-pressed");
-  });
-  const stopTouchAttack = () => {
+    if (state === "playing" && attackClock <= 0) attack();
+  };
+  const stopTouchAttack = event => {
+    if (event && event.pointerId !== undefined && attackPointerId !== null && event.pointerId !== attackPointerId) {
+      return;
+    }
+    attackPointerId = null;
     attackHeld = false;
     attackButton.classList.remove("is-pressed");
   };
-  attackButton.addEventListener("pointerup", stopTouchAttack);
-  attackButton.addEventListener("pointercancel", stopTouchAttack);
+  attackButton.addEventListener("pointerdown", startTouchAttack, { passive: false });
+  window.addEventListener("pointerup", stopTouchAttack);
+  window.addEventListener("pointercancel", stopTouchAttack);
+  attackButton.addEventListener("touchstart", event => {
+    if (window.PointerEvent) return;
+    startTouchAttack(event);
+  }, { passive: false });
+  attackButton.addEventListener("touchend", () => {
+    if (window.PointerEvent) return;
+    stopTouchAttack();
+  });
+  attackButton.addEventListener("touchcancel", () => {
+    if (window.PointerEvent) return;
+    stopTouchAttack();
+  });
 
   window.gameDebug = {
     getState: () => ({

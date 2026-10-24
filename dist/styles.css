@@ -10,11 +10,15 @@
   --shadow: 0 18px 50px rgba(18, 38, 31, 0.28);
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
 html,
 body {
   margin: 0;
+  width: 100%;
   min-height: 100%;
   background: #13251e;
   color: var(--ink);
@@ -24,6 +28,7 @@ body {
 
 body {
   min-height: 100svh;
+  min-height: 100dvh;
   background:
     radial-gradient(circle at 12% 18%, rgba(116, 180, 117, .2), transparent 22rem),
     repeating-linear-gradient(135deg, transparent 0 48px, rgba(255,255,255,.018) 49px 50px),
@@ -35,6 +40,7 @@ button { font: inherit; }
 .game-page {
   width: min(100%, 1780px);
   min-height: 100svh;
+  min-height: 100dvh;
   margin: 0 auto;
   padding: clamp(12px, 2vw, 28px);
   display: flex;
@@ -88,7 +94,8 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
   width: 100%;
   aspect-ratio: 16 / 9;
   min-height: 360px;
-  max-height: calc(100svh - 120px);
+  max-height: calc(100dvh - 110px);
+  margin: 0 auto;
   overflow: hidden;
   border: 4px solid rgba(255,255,255,.78);
   border-radius: 25px 19px 27px 21px;
@@ -96,9 +103,16 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
   background: #95e8f5;
   isolation: isolate;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-#game-canvas { width: 100%; height: 100%; display: block; }
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
 
 .hud { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
 .hud-card,
@@ -115,8 +129,8 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
 
 .hud-left-group {
   position: absolute;
-  left: 2.1%;
-  top: 3.6%;
+  left: max(14px, calc(env(safe-area-inset-left, 0px) + 1.8%));
+  top: max(10px, calc(env(safe-area-inset-top, 0px) + 2.8%));
   display: flex;
   align-items: center;
   gap: 10px;
@@ -178,7 +192,7 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
 .stage-pill {
   position: absolute;
   left: 50%;
-  top: 3.6%;
+  top: max(10px, calc(env(safe-area-inset-top, 0px) + 2.8%));
   transform: translateX(-50%) rotate(.2deg);
   min-width: 165px;
   text-align: center;
@@ -346,7 +360,14 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
   object-fit: contain;
 }
 
-.hud-right { position: absolute; right: 2.1%; top: 3.6%; display: flex; align-items: center; gap: 10px; }
+.hud-right {
+  position: absolute;
+  right: max(14px, calc(env(safe-area-inset-right, 0px) + 1.8%));
+  top: max(10px, calc(env(safe-area-inset-top, 0px) + 2.8%));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .hud-right .coin-pill,
 .hud-right .shop-pill-button,
 .hud-right .round-button { position: static; }
@@ -362,7 +383,7 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
 .weapon-chip {
   position: absolute;
   left: 50%;
-  bottom: 3%;
+  bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) + 2.4%));
   transform: translateX(-50%) rotate(-.2deg);
   display: flex;
   align-items: center;
@@ -382,31 +403,31 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
 .weapon-thumb img { width: 100%; height: 100%; object-fit: contain; }
 .weapon-thumb span { font-size: 24px; }
 
-.screen-layer { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: clamp(16px, 3vw, 42px); background: rgba(13,32,24,.55); backdrop-filter: blur(6px); }
+.screen-layer { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: clamp(12px, 2.5vw, 36px); background: rgba(13,32,24,.55); backdrop-filter: blur(6px); }
 .screen-layer--intro { place-items: center start; background: linear-gradient(90deg, rgba(10,27,20,.79) 0 42%, rgba(10,27,20,.08) 72%); backdrop-filter: none; }
 .is-hidden { display: none !important; }
 
 .paper-panel,
 .modal-card { background: var(--paper); border: 3px solid var(--ink); box-shadow: 8px 9px 0 rgba(12,30,23,.72); border-radius: 22px 17px 25px 18px; }
-.intro-card { width: min(490px, 48%); margin-left: 4%; padding: clamp(24px, 3.1vw, 50px); transform: rotate(-.3deg); }
+.intro-card { width: min(490px, 48%); margin-left: 4%; padding: clamp(20px, 3vw, 46px); transform: rotate(-.3deg); }
 .eyebrow { margin: 0 0 9px; color: var(--orange-dark); font-size: clamp(9px, .75vw, 12px); letter-spacing: .2em; font-weight: 900; text-transform: uppercase; }
 .intro-card h2,
-.modal-card h2 { margin: 0; font-family: "Yusei Magic", sans-serif; font-size: clamp(26px, 2.9vw, 48px); line-height: 1.12; letter-spacing: .04em; }
+.modal-card h2 { margin: 0; font-family: "Yusei Magic", sans-serif; font-size: clamp(24px, 2.8vw, 48px); line-height: 1.12; letter-spacing: .04em; }
 .intro-card h2 em { color: var(--orange); font-style: normal; }
-.intro-copy { margin: 16px 0; color: #55655e; line-height: 1.75; font-size: clamp(11px, 1vw, 14px); }
-.rules-row { display: flex; align-items: stretch; gap: 16px; margin: 18px 0 22px; }
+.intro-copy { margin: 14px 0; color: #55655e; line-height: 1.7; font-size: clamp(11px, 1vw, 14px); }
+.rules-row { display: flex; align-items: stretch; gap: 16px; margin: 16px 0 20px; }
 .rules-row div { display: flex; flex-direction: column; }
 .rules-row b { font-family: "Yusei Magic", sans-serif; font-size: clamp(18px, 2vw, 30px); }
 .rules-row span { font-size: clamp(8px, .75vw, 11px); color: #68746f; }
 .rules-row i { width: 1px; background: #d2d8cc; transform: rotate(8deg); }
 
-.primary-button { border: 3px solid var(--ink); border-radius: 12px 10px 14px 11px; background: var(--orange); color: white; box-shadow: 4px 5px 0 var(--ink); padding: 12px 20px; min-width: 180px; cursor: pointer; font-weight: 900; letter-spacing: .04em; transition: transform .15s, box-shadow .15s, filter .15s; }
+.primary-button { border: 3px solid var(--ink); border-radius: 12px 10px 14px 11px; background: var(--orange); color: white; box-shadow: 4px 5px 0 var(--ink); padding: 12px 20px; min-width: 170px; cursor: pointer; font-weight: 900; letter-spacing: .04em; transition: transform .15s, box-shadow .15s, filter .15s; }
 .primary-button:hover { transform: translate(-1px,-2px) rotate(-.5deg); box-shadow: 6px 7px 0 var(--ink); filter: saturate(1.1); }
 .primary-button:active { transform: translate(3px,3px); box-shadow: 1px 2px 0 var(--ink); }
-.primary-button span { margin-left: 18px; font-size: 18px; }
+.primary-button span { margin-left: 16px; font-size: 18px; }
 .primary-button:disabled { background: #b8bdb5; cursor: not-allowed; filter: grayscale(1); }
 
-.secondary-button { border: 3px solid var(--ink); border-radius: 12px 10px 14px 11px; background: var(--yellow); color: var(--ink); box-shadow: 4px 5px 0 var(--ink); padding: 12px 18px; min-width: 155px; cursor: pointer; font-weight: 900; letter-spacing: .04em; transition: transform .15s, box-shadow .15s, filter .15s; }
+.secondary-button { border: 3px solid var(--ink); border-radius: 12px 10px 14px 11px; background: var(--yellow); color: var(--ink); box-shadow: 4px 5px 0 var(--ink); padding: 12px 18px; min-width: 150px; cursor: pointer; font-weight: 900; letter-spacing: .04em; transition: transform .15s, box-shadow .15s, filter .15s; }
 .secondary-button:hover { transform: translate(-1px,-2px) rotate(.4deg); box-shadow: 6px 7px 0 var(--ink); filter: saturate(1.1); }
 .secondary-button:active { transform: translate(3px,3px); box-shadow: 1px 2px 0 var(--ink); }
 
@@ -690,13 +711,70 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
 .result-stats span { color: #78837e; font-size: 11px; }
 .text-button { display: block; margin: 17px auto 0; border: 0; background: transparent; color: #5c6863; text-decoration: underline; cursor: pointer; font-weight: 700; }
 
-.joystick { display: none; position: absolute; left: 4%; bottom: 5%; z-index: 7; }
-.joystick-ring { width: 112px; aspect-ratio: 1; border: 3px solid rgba(23,36,31,.76); border-radius: 50%; background: rgba(255,253,242,.55); box-shadow: inset 0 0 0 10px rgba(255,255,255,.18); display: grid; place-items: center; }
-.joystick-knob { width: 52px; aspect-ratio: 1; border: 3px solid var(--ink); border-radius: 50%; background: rgba(255,113,61,.9); box-shadow: 2px 3px 0 rgba(23,36,31,.8); transform: translate(0,0); }
-.attack-button { display: none; position: absolute; right: 5%; bottom: 6%; z-index: 7; width: 105px; aspect-ratio: 1; border: 3px solid var(--ink); border-radius: 50%; background: var(--orange); color: white; box-shadow: 5px 6px 0 rgba(23,36,31,.82); flex-direction: column; align-items: center; justify-content: center; touch-action: none; }
-.attack-button span { font-size: 32px; line-height: 1; }
-.attack-button strong { font-size: 12px; letter-spacing: .15em; }
-.attack-button.is-pressed { transform: translate(3px,3px) scale(.96); box-shadow: 2px 3px 0 rgba(23,36,31,.82); }
+/* Touch controls: Virtual Joystick (Left) & Attack Button (Right) */
+.joystick {
+  display: none;
+  position: absolute;
+  left: max(18px, calc(env(safe-area-inset-left, 0px) + 2.8%));
+  bottom: max(16px, calc(env(safe-area-inset-bottom, 0px) + 4.5%));
+  z-index: 8;
+  padding: 14px;
+  margin: -14px;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.joystick-ring {
+  width: clamp(92px, 13vw, 132px);
+  aspect-ratio: 1;
+  border: 3px solid rgba(23,36,31,.82);
+  border-radius: 50%;
+  background: rgba(255,253,242,.68);
+  box-shadow: 0 6px 18px rgba(0,0,0,.22), inset 0 0 0 10px rgba(255,255,255,.25);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.joystick-knob {
+  width: clamp(44px, 6.2vw, 62px);
+  aspect-ratio: 1;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: rgba(255,113,61,.95);
+  box-shadow: 2px 3px 0 rgba(23,36,31,.85);
+  transform: translate(0,0);
+  pointer-events: none;
+}
+
+.attack-button {
+  display: none;
+  position: absolute;
+  right: max(18px, calc(env(safe-area-inset-right, 0px) + 3.2%));
+  bottom: max(16px, calc(env(safe-area-inset-bottom, 0px) + 4.5%));
+  z-index: 8;
+  width: clamp(88px, 12.5vw, 126px);
+  aspect-ratio: 1;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--orange);
+  color: white;
+  box-shadow: 5px 6px 0 rgba(23,36,31,.85);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+.attack-button span { font-size: clamp(26px, 3.6vw, 38px); line-height: 1; pointer-events: none; }
+.attack-button strong { font-size: clamp(11px, 1.3vw, 14px); letter-spacing: .12em; margin-top: 2px; pointer-events: none; }
+.attack-button.is-pressed { transform: translate(3px,3px) scale(.95); box-shadow: 2px 3px 0 rgba(23,36,31,.85); background: var(--orange-dark); }
 
 .rotate-screen { display: none; position: fixed; inset: 0; z-index: 100; background: #14271f; color: white; place-items: center; align-content: center; text-align: center; }
 .rotate-screen p { color: rgba(255,255,255,.62); margin: 8px 0; }
@@ -706,23 +784,222 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
 
 .footer-note { margin: 0; color: rgba(255,255,255,.46); text-align: center; font-size: 10px; letter-spacing: .12em; }
 
-@media (hover: none), (pointer: coarse), (max-width: 900px) {
-  .desktop-help, .footer-note { display: none; }
-  .game-page { padding: 0; }
-  .brand-bar { display: none; }
-  #game-shell { min-height: 100svh; max-height: none; border: 0; border-radius: 0; box-shadow: none; }
-  .joystick:not(.is-hidden), .attack-button:not(.is-hidden) { display: block; }
-  .attack-button:not(.is-hidden) { display: flex; }
-  .weapon-chip { bottom: 2%; }
-  .intro-card { width: min(470px, 50%); margin-left: 2%; padding: 20px; }
-  .intro-copy { line-height: 1.45; margin: 8px 0; }
-  .rules-row { margin: 10px 0 15px; }
-  .primary-button { padding: 10px 16px; }
-  .shop-card { padding: 14px; }
-  .shop-list { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .shop-item { grid-template-columns: 78px 1fr; padding: 10px; }
-  .shop-item img, .shop-item .fist-shop-art { width: 76px; height: 58px; font-size: 32px; }
-  .modal-card { max-height: 96%; }
+/* ==========================================================================
+   Touch Devices (Phones & Tablets) + Small/Medium Screens
+   Fixes 19.5:9 / 20:9 phone vertical overflow AND supports 4:3 / 16:10 tablets
+   ========================================================================== */
+@media (hover: none), (pointer: coarse), (max-width: 1024px) {
+  html,
+  body {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    position: fixed;
+    inset: 0;
+  }
+
+  .desktop-help,
+  .footer-note,
+  .brand-bar {
+    display: none !important;
+  }
+
+  .game-page {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    gap: 0;
+  }
+
+  #game-shell {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .joystick:not(.is-hidden) {
+    display: block;
+  }
+
+  .attack-button:not(.is-hidden) {
+    display: flex;
+  }
+
+  .modal-card {
+    max-height: calc(100dvh - 20px);
+  }
+}
+
+/* Tablet Landscape (e.g. iPad Mini / Air / Pro: height >= 540px on touch device) */
+@media ((hover: none) or (pointer: coarse)) and (min-height: 540px) {
+  .joystick {
+    left: max(28px, calc(env(safe-area-inset-left, 0px) + 3.6%));
+    bottom: max(26px, calc(env(safe-area-inset-bottom, 0px) + 5.5%));
+  }
+  .joystick-ring {
+    width: 128px;
+  }
+  .joystick-knob {
+    width: 58px;
+  }
+  .attack-button {
+    right: max(28px, calc(env(safe-area-inset-right, 0px) + 3.8%));
+    bottom: max(26px, calc(env(safe-area-inset-bottom, 0px) + 5.5%));
+    width: 122px;
+  }
+  .attack-button span {
+    font-size: 36px;
+  }
+  .attack-button strong {
+    font-size: 13px;
+  }
+  .weapon-chip {
+    bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 3.2%));
+    padding: 8px 18px 8px 10px;
+  }
+  .intro-card {
+    width: min(500px, 54%);
+    margin-left: max(24px, calc(env(safe-area-inset-left, 0px) + 3%));
+    padding: 28px;
+  }
+}
+
+/* Phone Landscape & Compact Height Screens (height < 540px) */
+@media (max-height: 539px) {
+  .hud-left-group {
+    left: max(10px, calc(env(safe-area-inset-left, 0px) + 1.5%));
+    top: max(8px, calc(env(safe-area-inset-top, 0px) + 2.2%));
+    gap: 6px;
+  }
+  .gate-card,
+  .kill-card {
+    padding: 5px 9px;
+    gap: 7px;
+    border-radius: 10px;
+  }
+  .gate-card { min-width: 118px; }
+  .kill-card { min-width: 92px; }
+  .hud-icon { width: 22px; height: 22px; border-width: 2px; }
+  .shield-icon { font-size: 12px; }
+  .hud small { font-size: 8px; }
+  .hud strong { font-size: 12px; }
+  .gate-bar-track { height: 5px; margin-top: 3px; }
+
+  .stage-pill {
+    top: max(8px, calc(env(safe-area-inset-top, 0px) + 2.2%));
+    min-width: 132px;
+    padding: 5px 12px;
+    border-radius: 10px;
+  }
+
+  .hud-right {
+    right: max(10px, calc(env(safe-area-inset-right, 0px) + 1.5%));
+    top: max(8px, calc(env(safe-area-inset-top, 0px) + 2.2%));
+    gap: 6px;
+  }
+  .coin-pill {
+    min-width: 72px;
+    padding: 5px 10px;
+    gap: 5px;
+  }
+  .coin { width: 20px; font-size: 11px; }
+  .shop-pill-button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  .round-button {
+    width: 34px;
+    font-size: 12px;
+  }
+
+  .joystick {
+    left: max(16px, calc(env(safe-area-inset-left, 0px) + 2.6%));
+    bottom: max(14px, calc(env(safe-area-inset-bottom, 0px) + 4.2%));
+    padding: 16px;
+    margin: -16px;
+  }
+  .joystick-ring {
+    width: 92px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.22), inset 0 0 0 7px rgba(255,255,255,.22);
+  }
+  .joystick-knob {
+    width: 44px;
+  }
+
+  .attack-button {
+    right: max(16px, calc(env(safe-area-inset-right, 0px) + 2.8%));
+    bottom: max(14px, calc(env(safe-area-inset-bottom, 0px) + 4.2%));
+    width: 90px;
+  }
+  .attack-button span { font-size: 26px; }
+  .attack-button strong { font-size: 10px; }
+
+  .weapon-chip {
+    bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) + 2.5%));
+    padding: 5px 12px 5px 6px;
+    gap: 7px;
+    border-radius: 11px;
+  }
+  .weapon-thumb {
+    width: 34px;
+    height: 28px;
+  }
+  .weapon-thumb span { font-size: 18px; }
+
+  .screen-layer {
+    padding: 8px 12px;
+  }
+  .intro-card {
+    width: min(430px, 56%);
+    margin-left: max(12px, calc(env(safe-area-inset-left, 0px) + 2%));
+    padding: 14px 18px;
+  }
+  .intro-card h2 { font-size: 22px; }
+  .intro-copy { font-size: 10.5px; line-height: 1.4; margin: 6px 0; }
+  .rules-row { margin: 8px 0 12px; gap: 12px; }
+  .rules-row b { font-size: 16px; }
+  .primary-button,
+  .secondary-button {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-width: 130px;
+  }
+  .shop-card,
+  .selection-card {
+    padding: 10px 14px;
+  }
+  .shop-heading { margin-bottom: 4px; gap: 8px; }
+  .shop-heading h2 { font-size: 20px; }
+  .shop-wallet { padding: 4px 11px; font-size: 16px; }
+  .shop-tabs-bar { margin-bottom: 6px; }
+  .shop-tabs { gap: 6px; }
+  .shop-tab { padding: 4px 8px; font-size: 11px; }
+  .carousel-stage { grid-template-columns: 44px 1fr 44px; gap: 6px; }
+  .side-page-arrow { width: 44px; min-height: 108px; border-radius: 12px; }
+  .side-page-arrow .arrow-glyph { font-size: 26px; }
+  .side-page-arrow small { font-size: 9.5px; }
+  .shop-list { gap: 6px; }
+  .shop-item { min-height: 66px; padding: 6px 8px; gap: 8px; grid-template-columns: 56px 1fr; }
+  .shop-item img, .shop-item .fist-shop-art { width: 54px; height: 42px; font-size: 22px; }
+  .shop-item h3 { font-size: 12.5px; margin-bottom: 2px; }
+  .stat-attack-pill, .stat-speed-pill, .stat-range-pill { font-size: 9px; padding: 1px 5px; }
+  .shop-item p { font-size: 10px; margin-bottom: 2px; }
+  .upgrade-simple-hint, .upgrade-max-box { font-size: 9px; padding: 2px 5px; margin: 2px 0 3px; }
+  .buy-button { padding: 4px 6px; font-size: 10.5px; }
+  .weapon-option { width: 132px; min-height: 118px; padding: 6px; }
+  .weapon-option img, .weapon-option .fist-art { width: 76px; height: 44px; font-size: 26px; }
+  .weapon-option strong { font-size: 12px; }
+  .weapon-option small { font-size: 9px; }
 }
 
 @media (orientation: portrait) and (hover: none),
@@ -730,36 +1007,6 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
   .rotate-screen { display: grid; }
 }
 
-@media (max-height: 520px) {
-  .intro-card { padding: 17px 22px; }
-  .intro-card h2 { font-size: 26px; }
-  .intro-copy { font-size: 10px; }
-  .rules-row b { font-size: 18px; }
-  .shop-heading { margin-bottom: 5px; }
-  .shop-tabs-bar { margin-bottom: 6px; }
-  .shop-tabs { gap: 6px; }
-  .shop-tab { padding: 4px 8px; font-size: 11px; }
-  .carousel-stage { grid-template-columns: 46px 1fr 46px; gap: 6px; }
-  .side-page-arrow { width: 46px; min-height: 116px; border-radius: 12px; }
-  .side-page-arrow .arrow-glyph { font-size: 28px; }
-  .side-page-arrow small { font-size: 10px; }
-  .shop-list { gap: 6px; }
-  .shop-item { min-height: 70px; padding: 7px 9px; gap: 8px; grid-template-columns: 60px 1fr; }
-  .shop-item img, .shop-item .fist-shop-art { width: 58px; height: 44px; font-size: 24px; }
-  .shop-item h3 { font-size: 13px; margin-bottom: 2px; }
-  .stat-attack-pill, .stat-speed-pill, .stat-range-pill { font-size: 9.5px; padding: 1px 5px; }
-  .shop-item p { font-size: 10.5px; margin-bottom: 3px; }
-  .upgrade-simple-hint, .upgrade-max-box { font-size: 9.5px; padding: 2px 6px; margin: 2px 0 4px; }
-  .buy-button { padding: 4px 7px; font-size: 11px; }
-  .weapon-option { width: 138px; min-height: 124px; padding: 7px; }
-  .weapon-option img, .weapon-option .fist-art { width: 82px; height: 48px; font-size: 28px; }
-  .weapon-option strong { font-size: 12.5px; }
-  .weapon-option small { font-size: 9.5px; }
-  .joystick-ring { width: 88px; }
-  .joystick-knob { width: 43px; }
-  .attack-button { width: 84px; }
-}
-
-@media (max-width: 720px) {
+@media (max-width: 680px) {
   .shop-list { grid-template-columns: repeat(2, 1fr); }
 }
