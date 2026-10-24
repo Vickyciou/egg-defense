@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>《蛋仔守城》第二版（V2）完整遊戲規則與關卡平衡設計書</title>
+  <style>
+    :root {
+      --bg: #f6f4ec;
+      --card: #ffffff;
+      --ink: #1e2a22;
+      --muted: #5a6b60;
+      --line: #dce3dc;
+      --green: #2e8b57;
+      --green-soft: #e6f4ec;
+      --amber: #d97706;
+      --amber-soft: #fef3c7;
+      --red: #dc2626;
+      --red-soft: #fee2e2;
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --purple: #7c3aed;
+      --purple-soft: #ede9fe;
+      --teal: #0d9488;
+      --teal-soft: #ccfbf1;
+      --shadow: 0 10px 28px rgba(24, 39, 30, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+      padding: 32px 20px 80px;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    header.hero {
+      background: linear-gradient(135deg, #1d3b2a 0%, #2d5a40 60%, #3d7554 100%);
+      color: #fff;
+      padding: 36px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header.hero .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+
+    header.hero h1 {
+      margin: 0 0 10px;
+      font-size: 2.1rem;
+      letter-spacing: -0.01em;
+    }
+
+    header.hero p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.88);
+      max-width: 900px;
+      font-size: 1.02rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 14px 18px;
+    }
+
+    .stat-card .label {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .stat-card .value {
+      font-size: 1.55rem;
+      font-weight: 800;
+      margin-top: 2px;
+      color: #ffea9f;
+    }
+
+    .stat-card .sub {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    section.card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+    }
+
+    h2.section-title {
+      margin: 0 0 8px;
+      font-size: 1.45rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #163020;
+    }
+
+    .section-desc {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill-green { background: var(--green-soft); color: var(--green); }
+    .pill-amber { background: var(--amber-soft); color: var(--amber); }
+    .pill-red { background: var(--red-soft); color: var(--red); }
+    .pill-blue { background: var(--blue-soft); color: var(--blue); }
+    .pill-purple { background: var(--purple-soft); color: var(--purple); }
+    .pill-teal { background: var(--teal-soft); color: var(--teal); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .rule-box {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px 20px;
+      background: #fafaf7;
+    }
+
+    .rule-box h3 {
+      margin: 0 0 10px;
+      font-size: 1.08rem;
+      color: #1e3a29;
+    }
+
+    .rule-box ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .rule-box li {
+      margin-bottom: 7px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f1f5f1;
+      font-weight: 700;
+      color: #243b2c;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #f9fbf9;
+    }
+
+    .num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .sprite-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sprite-thumb {
+      width: 58px;
+      height: 46px;
+      object-fit: contain;
+      background: #f4f6f2;
+      border-radius: 8px;
+      padding: 4px;
+      border: 1px solid #e2e8e2;
+      flex-shrink: 0;
+    }
+
+    .fist-badge {
+      width: 58px;
+      height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fef3c7;
+      border-radius: 8px;
+      border: 1px solid #fde68a;
+      font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+
+    .tier-sub {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .level-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px 24px;
+      background: #fcfcfa;
+    }
+
+    .level-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px dashed var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .level-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .level-num {
+      background: #1d3b2a;
+      color: #fff;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+    }
+
+    .level-title h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .level-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .level-body {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1.2fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .level-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .level-block h4 {
+      margin: 0 0 6px;
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .monster-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .monster-tag {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .callout {
+      border-left: 4px solid var(--amber);
+      background: #fffbeb;
+      padding: 14px 18px;
+      border-radius: 0 12px 12px 0;
+      margin-top: 16px;
+      font-size: 0.92rem;
+    }
+
+    .callout-green {
+      border-left-color: var(--green);
+      background: #f0fdf4;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 36px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HERO -->
+    <header class="hero">
+      <span class="badge">GAME DESIGN SPECIFICATION · V2.1 (UPDATED)</span>
+      <h1>《蛋仔守城》第二版完整遊戲規則與武器／關卡設定書</h1>
+      <p>
+        最新更新版：完整收錄 <strong>12 把特色武器（新增 AWM、飛刀、RPG、愛國者飛彈車）</strong> 與 <strong>10 種怪物軍團</strong>，並同步更新「隨身補給小舖（按 B 隨時開商店）」、「失敗保留金幣」、「武器有效射程機制」、「三圍升星強化（傷害＋攻速＋射程）」與「開發者沙盒測試模式」等最新規則。
+      </p>
+      <div class="summary-grid">
+        <div class="stat-card">
+          <div class="label">戰役總關卡數</div>
+          <div class="value">8 關主線戰役</div>
+          <div class="sub">（附 10 關一怪一關擴充對照）</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">武器軍火庫</div>
+          <div class="value">12 把特色武器</div>
+          <div class="sub">3 分頁商店 · 支援 ★1 ~ ★3 升星</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">怪物軍團總數</div>
+          <div class="value">10 種怪物</div>
+          <div class="sub">含施法法師、極速忍者與雙首領</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">城門耐久與經濟</div>
+          <div class="value">200 HP / 關</div>
+          <div class="sub">隨時開商店 · 挑戰失敗保留金幣</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 1. 最新規則調整總覽 -->
+    <section class="card">
+      <h2 class="section-title">1. 最新規則與系統調整重點總覽</h2>
+      <p class="section-desc">根據最新實作版本（`dist/game.js` 與 `assets/weapons/weapons.json`），遊戲規則與武器系統已完成以下五大升級：</p>
+
+      <div class="three-col">
+        <div class="rule-box">
+          <h3>🔫 1. 武器擴編至 12 把 ＋ 專屬射程機制</h3>
+          <ul>
+            <li><strong>新增 4 把終極神兵</strong>：在第 3 頁商店加入 <strong>AWM 狙擊槍 ($2,800)</strong>、<strong>飛刀 ($3,500)</strong>、<strong>RPG 火箭筒 ($4,200)</strong> 與 <strong>愛國者防空飛彈機台 ($5,000)</strong>。</li>
+            <li><strong>遠程武器有效射程（Range）</strong>：取消舊版全畫面無限射程，每把遠程武器現在都有專屬有效射程（`380 px ~ 700 px`），子彈飛抵射程終點會顯示末端火花，讓不同武器的交戰距離更有區別。</li>
+            <li><strong>愛國者專屬載具模式</strong>：裝備「愛國者」時，主角會直接坐上大型防空飛彈戰車操控雙搖桿與雷達螢幕發射重型飛彈！</li>
+          </ul>
+        </div>
+
+        <div class="rule-box">
+          <h3>🛒 2. 隨身補給小舖 ＋ 失敗保留金幣</h3>
+          <ul>
+            <li><strong>戰鬥中隨時開商店</strong>：在戰鬥中點擊右上角「🛒 商店」、點擊金幣膠囊或按快捷鍵 <code>B</code>，即可暫停戰局進入補給小舖，用剛打到的金幣<strong>當場買新槍或升星強化</strong>，關閉後立即返回原戰局！</li>
+            <li><strong>挑戰失敗／重來保留全數金幣</strong>：即使城門耐久度歸零失敗，或從暫停選單重新開始本關，<strong>本關途中親手擊斃怪物賺到的金幣與已買裝備皆 100% 保留</strong>，可先強化武器再重新挑戰，絕不卡關。</li>
+            <li><strong>分頁式瀏覽</strong>：商店（12 把武器分為 3 頁，每頁 4 把）與出戰選武畫面皆支援左右翻頁。</li>
+          </ul>
+        </div>
+
+        <div class="rule-box">
+          <h3>✨ 3. 武器升星全面提升「傷害、攻速、射程」</h3>
+          <ul>
+            <li>已擁有的武器可花費金幣強化至 <strong>★2（原價 80%）</strong> 與 <strong>★3（原價 150%）</strong>（初始拳頭則以 $150 為基準，升級費用為 $120 / $225）。</li>
+            <li><strong>★2 強化幅度</strong>：攻擊力 <strong>+25%</strong>（保底 +2）、冷卻時間 <strong>×0.90（攻速變快）</strong>、判定範圍／爆破半徑 <strong>+12%</strong>、遠程射程 <strong>+8%</strong>。</li>
+            <li><strong>★3 強化幅度</strong>：攻擊力 <strong>+55%</strong>（保底 +5）、冷卻時間 <strong>×0.80（攻速提升 25%）</strong>、判定範圍／爆破半徑 <strong>+25%</strong>、遠程射程 <strong>+15%</strong>。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 核心遊戲規則 -->
+    <section class="card">
+      <h2 class="section-title">2. 核心戰鬥、城門耐久度與操作規則</h2>
+      <p class="section-desc">結合直覺操作、城門攻防與隱藏沙盒測試功能。</p>
+
+      <div class="two-col">
+        <div class="rule-box">
+          <h3>🏰 城門耐久度（Castle HP）與勝負判定</h3>
+          <ul>
+            <li><strong>城門基礎耐久度</strong>：每關開戰時城門固定擁有 <strong>200 HP</strong>（左上角顯示即時血條與數值）。</li>
+            <li><strong>怪物破城與法術傷害</strong>：
+              <ul>
+                <li>怪物抵達左側城門口（<code>x &lt;= 220</code>）時，會扣除城門等同於該怪物 <strong>攻擊力（10 ~ 175）</strong> 的耐久度並消失。</li>
+                <li><strong>魔法師（Mage）</strong>推進至場中央（<code>x &lt;= 760</code>）時，會詠唱 1 次遠程法術（隕石火球 30 / 魔法球 40 / 閃電 45）直接飛向城門造成傷害。</li>
+              </ul>
+            </li>
+            <li><strong>親手擊殺才給金幣</strong>：撞門自爆的怪物不會給金幣；只有被玩家武器擊殺的怪物才會掉落金幣。</li>
+            <li><strong>完美無傷守城獎金</strong>：過關時若城門維持滿血 <strong>200 / 200 HP</strong>，額外獲得本關擊殺金幣 <strong>+10% 完美守城獎金</strong>。</li>
+          </ul>
+        </div>
+
+        <div class="rule-box">
+          <h3>🎮 操作方式與 🛠️ 開發者測試模式</h3>
+          <ul>
+            <li><strong>電腦鍵盤操作</strong>：
+              <ul>
+                <li><code>↑ ↓ ← →</code>：在草地可玩範圍（<code>x: 235~1380, y: 295~790</code>）內移動。</li>
+                <li>按住 <code>Space</code>：依目前武器攻速朝右側連續攻擊。</li>
+                <li><code>Q</code>（或點擊下方武器欄）：即時循環切換已擁有的武器。</li>
+                <li><code>B</code>（或點右上角「🛒 商店」）：隨時開啟／關閉隨身補給小舖。</li>
+                <li><code>Esc</code>：暫停遊戲（若在隨身商店中按 Esc 則返回戰場）。</li>
+              </ul>
+            </li>
+            <li><strong>手機／平板觸控操作</strong>：左下虛擬搖桿移動、右下大型按鈕按住連續攻擊、下方武器卡點擊切換武器、右上角按鈕開商店。</li>
+            <li><strong>🛠️ 隱藏開發者測試模式（Sandbox Mode）</strong>：
+              <ul>
+                <li><strong>啟動方式</strong>：連續點擊左上角「蛋」字標誌、標題或關卡標籤 <strong>7 次</strong>。</li>
+                <li><strong>功能</strong>：立即解鎖全部 12 把武器（可一鍵切換全武器 ★1 / ★2 / ★3）、獲得 $99,999 金幣、開啟「🔒 沙盒無敵（城門不扣血、停止自動波次）」、一鍵清空怪物，並可任意點擊召喚 10 種怪物（×1 / ×3 / ×5 隻）上場測試火力！</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 全 12 把武器完整數值表 -->
+    <section class="card">
+      <h2 class="section-title">3. 全 12 把武器完整數值與升星成長表</h2>
+      <p class="section-desc">商店分為 3 個分頁（每頁 4 把武器）。下表完整列出每把武器的 ★1 基礎數值、★2 與 ★3 強化後數值、有效射程與特殊機制。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>編號 / 分頁</th>
+              <th>武器名稱與圖示</th>
+              <th>攻擊類型</th>
+              <th class="num">購買價格<br><small>★2 / ★3 強化費</small></th>
+              <th class="num">單發攻擊力<br><small>★1 → ★2 → ★3</small></th>
+              <th class="num">攻擊間隔 (攻速)<br><small>★1 → ★2 → ★3</small></th>
+              <th class="num">單目標 DPS<br><small>★1 → ★2 → ★3</small></th>
+              <th class="num">有效射程 / 範圍<br><small>★1 → ★2 → ★3</small></th>
+              <th>戰術定位與特殊視覺／擊退效果</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- PAGE 1 -->
+            <tr>
+              <td class="center"><strong>0</strong><span class="tier-sub">第 1 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <div class="fist-badge">✊</div>
+                  <div><strong>拳頭</strong><span class="tier-sub">初始免費配備</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-amber">近戰群攻</span></td>
+              <td class="num">免費 ($0)<span class="tier-sub">$120 / $225</span></td>
+              <td class="num">7<span class="tier-sub">7 → 9 → 12</span></td>
+              <td class="num">0.50s (2.0/秒)<span class="tier-sub">0.50 → 0.45 → 0.40s</span></td>
+              <td class="num">14.0<span class="tier-sub">14.0 → 20.0 → 30.0</span></td>
+              <td class="num">射程 170 px<span class="tier-sub">170 → 190 → 213 px<br>垂直 ±105~131 px</span></td>
+              <td>近戰扇形群攻，出拳時帶有拳套衝擊視覺，可同時毆打前方重疊的殭屍群。</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>1</strong><span class="tier-sub">第 1 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/01-scythe.png" alt="鐮刀" />
+                  <div><strong>鐮刀</strong><span class="tier-sub">Scythe</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-amber">近戰群攻</span></td>
+              <td class="num">$50<span class="tier-sub">$40 / $75</span></td>
+              <td class="num">8<span class="tier-sub">8 → 10 → 13</span></td>
+              <td class="num">0.45s (2.2/秒)<span class="tier-sub">0.45 → 0.41 → 0.36s</span></td>
+              <td class="num">17.8<span class="tier-sub">17.8 → 24.4 → 36.1</span></td>
+              <td class="num">射程 220 px<span class="tier-sub">220 → 246 → 275 px<br>垂直 ±120~150 px</span></td>
+              <td>大範圍近戰橫掃，第 1 關打倒 5 隻殭屍即可隨時按 B 購買，輕鬆橫掃早期屍潮。</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>2</strong><span class="tier-sub">第 1 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/02-longsword.png" alt="長刀" />
+                  <div><strong>長刀</strong><span class="tier-sub">Longsword</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-amber">近戰群攻</span></td>
+              <td class="num">$100<span class="tier-sub">$80 / $150</span></td>
+              <td class="num">9<span class="tier-sub">9 → 11 → 14</span></td>
+              <td class="num">0.38s (2.6/秒)<span class="tier-sub">0.38 → 0.34 → 0.30s</span></td>
+              <td class="num">23.7<span class="tier-sub">23.7 → 32.4 → 46.7</span></td>
+              <td class="num">射程 255 px<span class="tier-sub">255 → 286 → 319 px<br>垂直 ±125~156 px</span></td>
+              <td>高速長距斬擊，揮砍速度與距離兼具的近戰主力，適合第 1~2 關快速清場。</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>3</strong><span class="tier-sub">第 1 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/03-bow.png" alt="弓" />
+                  <div><strong>弓</strong><span class="tier-sub">Bow</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-blue">遠程穿透</span></td>
+              <td class="num">$250<span class="tier-sub">$200 / $375</span></td>
+              <td class="num">8<span class="tier-sub">8 → 10 → 13</span></td>
+              <td class="num">0.40s (2.5/秒)<span class="tier-sub">0.40 → 0.36 → 0.32s</span></td>
+              <td class="num">20.0<span class="tier-sub">20.0 → 27.8 → 40.6</span></td>
+              <td class="num">射程 420 px<span class="tier-sub">420 → 454 → 483 px<br>穿透寬 ±58~73 px</span></td>
+              <td>入門中距離直線穿透武器，能安全在怪群前方維持中距離直線貫穿輸出。</td>
+            </tr>
+
+            <!-- PAGE 2 -->
+            <tr>
+              <td class="center"><strong>4</strong><span class="tier-sub">第 2 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/04-m1911.png" alt="M1911" />
+                  <div><strong>M1911</strong><span class="tier-sub">半自動手槍</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-blue">遠程穿透</span></td>
+              <td class="num">$550<span class="tier-sub">$440 / $825</span></td>
+              <td class="num">10<span class="tier-sub">10 → 13 → 16</span></td>
+              <td class="num">0.30s (3.3/秒)<span class="tier-sub">0.30 → 0.27 → 0.24s</span></td>
+              <td class="num">33.3<span class="tier-sub">33.3 → 48.1 → 66.7</span></td>
+              <td class="num">射程 380 px<span class="tier-sub">380 → 410 → 437 px<br>穿透寬 ±62~78 px</span></td>
+              <td>中近距離半自動快速穿透手槍，射速輕快，2 槍解決殭屍、6 槍解決小戰士。</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>5</strong><span class="tier-sub">第 2 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/05-gl06.png" alt="GL06" />
+                  <div><strong>GL06</strong><span class="tier-sub">榴彈發射器</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-purple">範圍爆破</span></td>
+              <td class="num">$900<span class="tier-sub">$720 / $1,350</span></td>
+              <td class="num">20<span class="tier-sub">20 → 25 → 31</span></td>
+              <td class="num">1.00s (1.0/秒)<span class="tier-sub">1.00 → 0.90 → 0.80s</span></td>
+              <td class="num">20.0 單體<span class="tier-sub">20.0 → 27.8 → 38.8<br>(高群傷控場)</span></td>
+              <td class="num">射程 460 px<span class="tier-sub">460 → 497 → 529 px<br>爆破半徑 190~238 px</span></td>
+              <td>中距離榴彈範圍爆破，命中目標產生圓形大爆炸，對範圍內所有敵人造成傷害並附帶 <strong>0.45 秒減速與擊退</strong>。</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>6</strong><span class="tier-sub">第 2 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/06-ak47.png" alt="AK-47" />
+                  <div><strong>AK-47</strong><span class="tier-sub">突擊步槍</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-red">連射穿透</span></td>
+              <td class="num">$1,500<span class="tier-sub">$1,200 / $2,250</span></td>
+              <td class="num">15<span class="tier-sub">15 → 19 → 23</span></td>
+              <td class="num">0.22s (4.5/秒)<span class="tier-sub">0.22 → 0.20 → 0.18s</span></td>
+              <td class="num">68.2<span class="tier-sub">68.2 → 95.0 → 127.8</span></td>
+              <td class="num">射程 520 px<span class="tier-sub">520 → 562 → 598 px<br>穿透寬 ±65~81 px</span></td>
+              <td>中遠距離全自動連射穿透步槍，擁有 520 px 優秀射程與高射速，中期對付法師與惡魔靈的主力。</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>7</strong><span class="tier-sub">第 2 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/07-m134.png" alt="M134" />
+                  <div><strong>M134</strong><span class="tier-sub">六管火神機槍</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-red">極速彈幕</span></td>
+              <td class="num">$2,000<span class="tier-sub">$1,600 / $3,000</span></td>
+              <td class="num">25<span class="tier-sub">25 → 31 → 39</span></td>
+              <td class="num">0.14s (7.1/秒)<span class="tier-sub">0.14 → 0.13 → 0.11s</span></td>
+              <td class="num">178.6<span class="tier-sub">178.6 → 238.5 → 354.5</span></td>
+              <td class="num">射程 480 px<span class="tier-sub">480 → 518 → 552 px<br>穿透寬 ±78~98 px</span></td>
+              <td>中距離終極火神彈幕穿透，每秒傾瀉 7~9 發重機槍彈，寬幅彈道能瞬間融化整排精英怪。</td>
+            </tr>
+
+            <!-- PAGE 3 -->
+            <tr>
+              <td class="center"><strong>8</strong><span class="tier-sub">第 3 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/08-awm.png" alt="AWM" />
+                  <div><strong>AWM</strong><span class="tier-sub">重型狙擊步槍</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-teal">遠程狙擊擊退</span></td>
+              <td class="num">$2,800<span class="tier-sub">$2,240 / $4,200</span></td>
+              <td class="num">75<span class="tier-sub">75 → 94 → 116</span></td>
+              <td class="num">0.36s (2.8/秒)<span class="tier-sub">0.36 → 0.32 → 0.29s</span></td>
+              <td class="num">208.3<span class="tier-sub">208.3 → 293.8 → 400.0</span></td>
+              <td class="num">射程 700 px<span class="tier-sub">700 → 756 → 805 px<br>穿透寬 ±82~103 px</span></td>
+              <td><strong>全遊戲最遠射程（700~805 px）</strong>！藍色高能狙擊彈道，每發命中附帶 <strong>26 px 強效擊退</strong>，專克遠處施法的魔法師與死神。</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>9</strong><span class="tier-sub">第 3 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/09-throwing-knife.png" alt="飛刀" />
+                  <div><strong>飛刀</strong><span class="tier-sub">Throwing Knife</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-teal">高速連擲穿透</span></td>
+              <td class="num">$3,500<span class="tier-sub">$2,800 / $5,250</span></td>
+              <td class="num">60<span class="tier-sub">60 → 75 → 93</span></td>
+              <td class="num">0.22s (4.5/秒)<span class="tier-sub">0.22 → 0.20 → 0.18s</span></td>
+              <td class="num">272.7<span class="tier-sub">272.7 → 375.0 → 516.7</span></td>
+              <td class="num">射程 400 px<span class="tier-sub">400 → 432 → 460 px<br>穿透寬 ±86~108 px</span></td>
+              <td>中近距離疾風連擲武器，發射<strong>實體飛刀圖像＋青藍風痕特效</strong>，擁有全遊戲最高的單體穿透 DPS（★3 高達 516.7 DPS）！</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>10</strong><span class="tier-sub">第 3 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/10-patriot.png" alt="愛國者" />
+                  <div><strong>愛國者</strong><span class="tier-sub">防空飛彈機台</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-purple">載具巨型轟炸</span></td>
+              <td class="num">$5,000<span class="tier-sub">$4,000 / $7,500</span></td>
+              <td class="num">160<span class="tier-sub">160 → 200 → 248</span></td>
+              <td class="num">0.52s (1.9/秒)<span class="tier-sub">0.52 → 0.47 → 0.42s</span></td>
+              <td class="num">307.7 單體<span class="tier-sub">307.7 → 425.5 → 590.5<br>(毀滅級範圍轟炸)</span></td>
+              <td class="num">射程 620 px<span class="tier-sub">620 → 670 → 713 px<br>爆破半徑 270~338 px</span></td>
+              <td><strong>專屬搭乘大型防空飛彈機台載具模式</strong>！主角坐上裝甲座椅操控雙搖桿發射重型飛彈，造成半徑 270~338 px 毀滅性大範圍轟炸＋減速震退。</td>
+            </tr>
+            <tr>
+              <td class="center"><strong>11</strong><span class="tier-sub">第 3 頁</span></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/weapons/11-rpg.png" alt="RPG" />
+                  <div><strong>RPG</strong><span class="tier-sub">重型火箭筒</span></div>
+                </div>
+              </td>
+              <td><span class="pill pill-purple">重型高爆火箭</span></td>
+              <td class="num">$4,200<span class="tier-sub">$3,360 / $6,300</span></td>
+              <td class="num">115<span class="tier-sub">115 → 144 → 178</span></td>
+              <td class="num">0.48s (2.1/秒)<span class="tier-sub">0.48 → 0.43 → 0.38s</span></td>
+              <td class="num">239.6 單體<span class="tier-sub">239.6 → 334.9 → 468.4<br>(大範圍高爆)</span></td>
+              <td class="num">射程 560 px<span class="tier-sub">560 → 605 → 644 px<br>爆破半徑 230~288 px</span></td>
+              <td>中遠程重型火箭筒，單發高爆 115~178 傷害，命中產生半徑 230~288 px 大範圍爆炸並附帶 0.45 秒減速與擊退。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. 怪物圖鑑與數值表 -->
+    <section class="card">
+      <h2 class="section-title">4. 全 10 種怪物圖鑑與行為機制表</h2>
+      <p class="section-desc">依據 10 種怪物的造型與背景設定，區分出<strong>基礎雜兵、高速突擊、遠程施法、高傷精英、重裝副首領與終極魔王</strong>。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>怪物名稱與造型</th>
+              <th>定位分類</th>
+              <th class="num">HP (血量)</th>
+              <th class="num">破城攻擊力</th>
+              <th class="num">擊敗金幣</th>
+              <th class="num">走完全程時間</th>
+              <th class="num">移動速度</th>
+              <th>初次登場與特殊行為機制</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>monster_01</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/zombie_monster.png" alt="方塊殭屍" />
+                  <div><strong>方塊殭屍</strong><br><small>Square Zombie</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-green">基礎雜兵</span></td>
+              <td class="num">20</td>
+              <td class="num">10</td>
+              <td class="num">$10</td>
+              <td class="num">13.5 秒</td>
+              <td class="num">~96 px/s</td>
+              <td><strong>第 1 關登場</strong>：直線朝城門緩步前進，數量龐大但血量低，用於熟悉走位與群攻。</td>
+            </tr>
+            <tr>
+              <td><code>monster_02</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/knight_monster.png" alt="冠帽小戰士" />
+                  <div><strong>冠帽小戰士</strong><br><small>Little Knight</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-green">前鋒步兵</span></td>
+              <td class="num">60</td>
+              <td class="num">20</td>
+              <td class="num">$50</td>
+              <td class="num">12.5 秒</td>
+              <td class="num">~104 px/s</td>
+              <td><strong>第 2 關登場</strong>：血量為殭屍的 3 倍，步伐稍快，帶領殭屍群推進的小隊長。</td>
+            </tr>
+            <tr>
+              <td><code>monster_03</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/armored_cavalry_monster.png" alt="裝甲騎兵" />
+                  <div><strong>裝甲騎兵</strong><br><small>Armored Cavalry</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-amber">高速突擊</span></td>
+              <td class="num">100</td>
+              <td class="num">25</td>
+              <td class="num">$80</td>
+              <td class="num">10.0 秒</td>
+              <td class="num">~130 px/s</td>
+              <td><strong>第 3 關登場</strong>：騎乘裝甲猛獸，移動速度比殭屍快 35%！玩家需優先攔截避免衝破防線。</td>
+            </tr>
+            <tr>
+              <td><code>monster_04</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/ninja_monster.png" alt="忍者" />
+                  <div><strong>忍者</strong><br><small>Ninja</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-amber">極速刺客</span></td>
+              <td class="num">150</td>
+              <td class="num">35</td>
+              <td class="num">$120</td>
+              <td class="num">9.0 秒</td>
+              <td class="num">~145 px/s</td>
+              <td><strong>第 4 關登場</strong>：全遊戲移動最快的敏捷單位（9 秒即達城門），行進時帶有上下正弦波閃避軌跡（<code>agile: true</code>）。</td>
+            </tr>
+            <tr>
+              <td><code>monster_05</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/mage_monster.png" alt="魔法師" />
+                  <div><strong>魔法師</strong><br><small>Mage</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-purple">遠程施法</span></td>
+              <td class="num">195</td>
+              <td class="num">40<br><small>(30 / 40 / 45)</small></td>
+              <td class="num">$160</td>
+              <td class="num">15.0 秒</td>
+              <td class="num">~87 px/s</td>
+              <td><strong>第 5 關登場</strong>：推進至場中央（<code>x &lt;= 760</code>）若未死亡，會詠唱 1 次隨機法術（隕石火球 30 / 魔法球 40 / 閃電 45）遠距轟擊城門！</td>
+            </tr>
+            <tr>
+              <td><code>monster_06</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/demon_spirit_monster.png" alt="惡魔靈" />
+                  <div><strong>惡魔靈</strong><br><small>Demon Spirit</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-purple">靈體中堅</span></td>
+              <td class="num">250</td>
+              <td class="num">50</td>
+              <td class="num">$200</td>
+              <td class="num">11.5 秒</td>
+              <td class="num">~113 px/s</td>
+              <td><strong>第 5 關登場</strong>：上下飄浮前進的魔眼幽靈（<code>float: true</code>），血量厚且速度不慢，常掩護魔法師推進。</td>
+            </tr>
+            <tr>
+              <td><code>monster_07</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/grim_reaper_monster.png" alt="死神" />
+                  <div><strong>死神</strong><br><small>Grim Reaper</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-red">高傷精英</span></td>
+              <td class="num">300</td>
+              <td class="num">75</td>
+              <td class="num">$250</td>
+              <td class="num">12.5 秒</td>
+              <td class="num">~104 px/s</td>
+              <td><strong>第 6 關登場</strong>：手持巨型鐮刀的死神，單次破城傷害高達 75（漏掉 3 隻即直接破城）。</td>
+            </tr>
+            <tr>
+              <td><code>monster_08</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/pistol_soldier_monster.png" alt="手槍兵" />
+                  <div><strong>手槍兵</strong><br><small>Pistol Soldier</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-red">重裝精英</span></td>
+              <td class="num">500</td>
+              <td class="num">125</td>
+              <td class="num">$400</td>
+              <td class="num">15.5 秒</td>
+              <td class="num">~84 px/s</td>
+              <td><strong>第 7 關登場</strong>：500 HP 的重裝骷髏光環槍兵，需要高 DPS 武器（M134、AWM、飛刀、RPG）快速擊破。</td>
+            </tr>
+            <tr>
+              <td><code>monster_09</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/ai_gemini_monster.png" alt="AI-Gemini" />
+                  <div><strong>AI-Gemini</strong><br><small>科技機甲副首領</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-red">副首領 (Sub-Boss)</span></td>
+              <td class="num">750</td>
+              <td class="num">150</td>
+              <td class="num">$600</td>
+              <td class="num">18.0 秒</td>
+              <td class="num">~72 px/s</td>
+              <td><strong>第 7 關壓軸登場</strong>：750 HP 高科技機甲（紫色首領血條），受擊退效果減免，破城傷害高達 150。</td>
+            </tr>
+            <tr>
+              <td><code>monster_10</code></td>
+              <td>
+                <div class="sprite-cell">
+                  <img class="sprite-thumb" src="assets/monsters/blade_boss_monster.png" alt="刀之首領" />
+                  <div><strong>刀之首領</strong><br><small>Blade Boss</small></div>
+                </div>
+              </td>
+              <td><span class="pill pill-red">終極魔王 (Final Boss)</span></td>
+              <td class="num">1,000</td>
+              <td class="num">175</td>
+              <td class="num">$800</td>
+              <td class="num">21.0 秒</td>
+              <td class="num">~62 px/s</td>
+              <td><strong>第 8 關最終魔王</strong>：高達 1,000 HP 與 175 破城傷害，體型最大，適合以愛國者、RPG、飛刀或 M134 全力集火。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. 全 8 關卡完整配置與經濟模擬 -->
+    <section class="card">
+      <h2 class="section-title">5. 全 8 關主線戰役：詳細關卡配置與 12 把武器採購路線圖</h2>
+      <p class="section-desc">結合「戰鬥中可隨時按 B 開商店」的新規則，玩家在關卡途中賺夠金幣即可立即買新武器上場，下表呈現第 1 至第 8 關的完整配置。</p>
+
+      <div class="level-grid">
+        <!-- LEVEL 1 -->
+        <div class="level-card">
+          <div class="level-header">
+            <div class="level-title">
+              <span class="level-num">第 1 關</span>
+              <h3>初陣・草地上的方塊屍潮</h3>
+            </div>
+            <div class="level-meta">
+              <span class="pill pill-green">怪數：18 隻</span>
+              <span class="pill pill-blue">生怪間隔：2.4 秒</span>
+              <span class="pill pill-amber">關卡時長：約 50 秒</span>
+              <span class="pill pill-purple">本關金幣：$180（無傷 +$18）</span>
+            </div>
+          </div>
+          <div class="level-body">
+            <div class="level-block">
+              <h4>👾 怪物陣容與配置</h4>
+              <div class="monster-tags">
+                <span class="monster-tag">方塊殭屍 (20 HP) × 18 隻</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--muted);">純方塊殭屍教學關，總血量 360 HP。</p>
+            </div>
+            <div class="level-block">
+              <h4>⚔️ 推薦武器與商店目標</h4>
+              <p style="margin:0;font-size:0.9rem;">
+                <strong>開局出戰</strong>：✊ 拳頭<br>
+                <strong>途中／過關可買</strong>：打滿 $50 可立即按 B 買 <strong>鐮刀 ($50)</strong>，或滿 $100 買 <strong>長刀 ($100)</strong>！
+              </p>
+            </div>
+            <div class="level-block">
+              <h4>💡 設計師節奏說明</h4>
+              <p style="margin:0;font-size:0.88rem;color:var(--muted);">
+                因為現在支援戰鬥中隨時開商店，玩家擊殺第 5 隻殭屍（賺到 $50）就能當場買鐮刀換上，立刻體驗武器升級的爽快感！
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEVEL 2 -->
+        <div class="level-card">
+          <div class="level-header">
+            <div class="level-title">
+              <span class="level-num">第 2 關</span>
+              <h3>皇冠小隊長的進擊</h3>
+            </div>
+            <div class="level-meta">
+              <span class="pill pill-green">怪數：22 隻</span>
+              <span class="pill pill-blue">生怪間隔：2.1 秒</span>
+              <span class="pill pill-amber">關卡時長：約 55 秒</span>
+              <span class="pill pill-purple">本關金幣：$380（累積 $560+）</span>
+            </div>
+          </div>
+          <div class="level-body">
+            <div class="level-block">
+              <h4>👾 怪物陣容與配置</h4>
+              <div class="monster-tags">
+                <span class="monster-tag">方塊殭屍 (20 HP) × 18 隻</span>
+                <span class="monster-tag">冠帽小戰士 (60 HP) × 4 隻</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--muted);">總血量 600 HP，小戰士穿插在屍潮中登場。</p>
+            </div>
+            <div class="level-block">
+              <h4>⚔️ 推薦武器與商店目標</h4>
+              <p style="margin:0;font-size:0.9rem;">
+                <strong>推薦出戰</strong>：🗡️ 長刀 或 鐮刀<br>
+                <strong>途中／過關可買</strong>：<strong>弓 ($250)</strong> 或存錢直上 <strong>M1911 手槍 ($550)</strong>
+              </p>
+            </div>
+            <div class="level-block">
+              <h4>💡 設計師節奏說明</h4>
+              <p style="margin:0;font-size:0.88rem;color:var(--muted);">
+                由近戰轉入遠程的關鍵過渡關。購入「弓」或「M1911」後即可在安全距離直線穿透多隻排隊的殭屍與小戰士。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEVEL 3 -->
+        <div class="level-card">
+          <div class="level-header">
+            <div class="level-title">
+              <span class="level-num">第 3 關</span>
+              <h3>鐵蹄奔襲・裝甲騎兵突擊</h3>
+            </div>
+            <div class="level-meta">
+              <span class="pill pill-green">怪數：24 隻</span>
+              <span class="pill pill-blue">生怪間隔：1.9 秒</span>
+              <span class="pill pill-amber">關卡時長：約 55 秒</span>
+              <span class="pill pill-purple">本關金幣：$690（累積 $1,250+）</span>
+            </div>
+          </div>
+          <div class="level-body">
+            <div class="level-block">
+              <h4>👾 怪物陣容與配置</h4>
+              <div class="monster-tags">
+                <span class="monster-tag">方塊殭屍 (20 HP) × 14 隻</span>
+                <span class="monster-tag">冠帽小戰士 (60 HP) × 5 隻</span>
+                <span class="monster-tag">裝甲騎兵 (100 HP) × 5 隻</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--muted);">總血量 1,080 HP，裝甲騎兵 10 秒即衝達城門。</p>
+            </div>
+            <div class="level-block">
+              <h4>⚔️ 推薦武器與商店目標</h4>
+              <p style="margin:0;font-size:0.9rem;">
+                <strong>推薦出戰</strong>：🏹 弓 ★2 或 🔫 M1911<br>
+                <strong>途中／過關可買</strong>：<strong>GL06 榴彈發射器 ($900)</strong>
+              </p>
+            </div>
+            <div class="level-block">
+              <h4>💡 設計師節奏說明</h4>
+              <p style="margin:0;font-size:0.88rem;color:var(--muted);">
+                裝甲騎兵衝刺速度快，換上 M1911 或購入 GL06 利用範圍爆炸＋減速震退，能有效壓制騎兵衝鋒。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEVEL 4 -->
+        <div class="level-card">
+          <div class="level-header">
+            <div class="level-title">
+              <span class="level-num">第 4 關</span>
+              <h3>疾風暗影・忍者的奇襲</h3>
+            </div>
+            <div class="level-meta">
+              <span class="pill pill-green">怪數：25 隻</span>
+              <span class="pill pill-blue">生怪間隔：1.8 秒</span>
+              <span class="pill pill-amber">關卡時長：約 55 秒</span>
+              <span class="pill pill-purple">本關金幣：$1,160（累積 $2,410+）</span>
+            </div>
+          </div>
+          <div class="level-body">
+            <div class="level-block">
+              <h4>👾 怪物陣容與配置</h4>
+              <div class="monster-tags">
+                <span class="monster-tag">方塊殭屍 (20 HP) × 10 隻</span>
+                <span class="monster-tag">冠帽小戰士 (60 HP) × 5 隻</span>
+                <span class="monster-tag">裝甲騎兵 (100 HP) × 5 隻</span>
+                <span class="monster-tag">忍者 (150 HP) × 5 隻</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--muted);">總血量 1,750 HP，忍者僅需 9 秒且會波浪閃避！</p>
+            </div>
+            <div class="level-block">
+              <h4>⚔️ 推薦武器與商店目標</h4>
+              <p style="margin:0;font-size:0.9rem;">
+                <strong>推薦出戰</strong>：🔫 M1911 ★2 或 💥 GL06<br>
+                <strong>途中／過關可買</strong>：<strong>AK-47 ($1,500)</strong> 或 <strong>M134 ($2,000)</strong>
+              </p>
+            </div>
+            <div class="level-block">
+              <h4>💡 設計師節奏說明</h4>
+              <p style="margin:0;font-size:0.88rem;color:var(--muted);">
+                面對波浪走位的 9 秒極速忍者，高射速的 AK-47 或大範圍爆炸的 GL06 能大幅提高命中容錯率。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEVEL 5 -->
+        <div class="level-card">
+          <div class="level-header">
+            <div class="level-title">
+              <span class="level-num">第 5 關</span>
+              <h3>秘法與魔眼・雙重威脅</h3>
+            </div>
+            <div class="level-meta">
+              <span class="pill pill-green">怪數：26 隻</span>
+              <span class="pill pill-blue">生怪間隔：1.75 秒</span>
+              <span class="pill pill-amber">關卡時長：約 60 秒</span>
+              <span class="pill pill-purple">本關金幣：$1,990（累積 $4,400+）</span>
+            </div>
+          </div>
+          <div class="level-body">
+            <div class="level-block">
+              <h4>👾 怪物陣容與配置</h4>
+              <div class="monster-tags">
+                <span class="monster-tag">冠帽小戰士 (60 HP) × 8 隻</span>
+                <span class="monster-tag">裝甲騎兵 (100 HP) × 6 隻</span>
+                <span class="monster-tag">忍者 (150 HP) × 5 隻</span>
+                <span class="monster-tag">魔法師 (195 HP) × 4 隻</span>
+                <span class="monster-tag">惡魔靈 (250 HP) × 3 隻</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--muted);">總血量 3,360 HP，魔法師走到中場會遠程施法轟門。</p>
+            </div>
+            <div class="level-block">
+              <h4>⚔️ 推薦武器與商店目標</h4>
+              <p style="margin:0;font-size:0.9rem;">
+                <strong>推薦出戰</strong>：🔥 AK-47 或 ⚡ M134<br>
+                <strong>途中／過關可買</strong>：第 3 頁神兵 <strong>AWM 狙擊槍 ($2,800)</strong> 或 <strong>飛刀 ($3,500)</strong>
+              </p>
+            </div>
+            <div class="level-block">
+              <h4>💡 設計師節奏說明</h4>
+              <p style="margin:0;font-size:0.88rem;color:var(--muted);">
+                魔法師在 <code>x &lt;= 760</code> 就會詠唱法術轟擊城門！若購入射程高達 700 px 的 <strong>AWM 狙擊槍</strong>，就能在魔法師詠唱前從遠端將其擊退並狙殺！
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEVEL 6 -->
+        <div class="level-card">
+          <div class="level-header">
+            <div class="level-title">
+              <span class="level-num">第 6 關</span>
+              <h3>冥界收割・死神降臨</h3>
+            </div>
+            <div class="level-meta">
+              <span class="pill pill-green">怪數：26 隻</span>
+              <span class="pill pill-blue">生怪間隔：1.7 秒</span>
+              <span class="pill pill-amber">關卡時長：約 60 秒</span>
+              <span class="pill pill-purple">本關金幣：$2,950（累積 $7,350+）</span>
+            </div>
+          </div>
+          <div class="level-body">
+            <div class="level-block">
+              <h4>👾 怪物陣容與配置</h4>
+              <div class="monster-tags">
+                <span class="monster-tag">裝甲騎兵 (100 HP) × 6 隻</span>
+                <span class="monster-tag">忍者 (150 HP) × 6 隻</span>
+                <span class="monster-tag">魔法師 (195 HP) × 4 隻</span>
+                <span class="monster-tag">惡魔靈 (250 HP) × 5 隻</span>
+                <span class="monster-tag">死神 (300 HP) × 5 隻</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--muted);">總血量 5,030 HP，死神破城傷害高達 75 點。</p>
+            </div>
+            <div class="level-block">
+              <h4>⚔️ 推薦武器與商店目標</h4>
+              <p style="margin:0;font-size:0.9rem;">
+                <strong>推薦出戰</strong>：🎯 AWM、🗡️ 飛刀 或 ⚡ M134<br>
+                <strong>途中／過關可買</strong>：<strong>RPG 火箭筒 ($4,200)</strong> 或 <strong>愛國者飛彈車 ($5,000)</strong>
+              </p>
+            </div>
+            <div class="level-block">
+              <h4>💡 設計師節奏說明</h4>
+              <p style="margin:0;font-size:0.88rem;color:var(--muted);">
+                第 6 關進帳高達 $2,950，讓玩家正式邁入「第 3 頁終極神兵」階段，可購入飛刀、RPG 或直上 $5,000 的愛國者防空飛彈機台！
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEVEL 7 -->
+        <div class="level-card">
+          <div class="level-header">
+            <div class="level-title">
+              <span class="level-num">第 7 關</span>
+              <h3>鋼鐵與硝煙・AI-Gemini 覺醒（副首領關）</h3>
+            </div>
+            <div class="level-meta">
+              <span class="pill pill-green">怪數：25 隻</span>
+              <span class="pill pill-blue">生怪間隔：1.65 秒</span>
+              <span class="pill pill-amber">關卡時長：約 65 秒</span>
+              <span class="pill pill-purple">本關金幣：$4,590（累積 $11,940+）</span>
+            </div>
+          </div>
+          <div class="level-body">
+            <div class="level-block">
+              <h4>👾 怪物陣容與配置</h4>
+              <div class="monster-tags">
+                <span class="monster-tag">忍者 (150 HP) × 6 隻</span>
+                <span class="monster-tag">魔法師 (195 HP) × 4 隻</span>
+                <span class="monster-tag">惡魔靈 (250 HP) × 4 隻</span>
+                <span class="monster-tag">死神 (300 HP) × 4 隻</span>
+                <span class="monster-tag">手槍兵 (500 HP) × 5 隻</span>
+                <span class="monster-tag" style="border-color:var(--red);color:var(--red);">★ AI-Gemini (750 HP) × 2 隻</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--muted);">總血量 7,880 HP，中場與關底各出現 1 尊 AI-Gemini 機甲。</p>
+            </div>
+            <div class="level-block">
+              <h4>⚔️ 推薦武器與商店目標</h4>
+              <p style="margin:0;font-size:0.9rem;">
+                <strong>推薦出戰</strong>：🚀 愛國者、💥 RPG 或 🗡️ 飛刀<br>
+                <strong>途中／過關可買</strong>：將主力終極武器升至 <strong>★2 / ★3 滿級強化</strong>
+              </p>
+            </div>
+            <div class="level-block">
+              <h4>💡 設計師節奏說明</h4>
+              <p style="margin:0;font-size:0.88rem;color:var(--muted);">
+                500 HP 的手槍兵搭配 750 HP 的 AI-Gemini 機甲，正好讓玩家發揮「愛國者 ($5,000)」或「RPG ($4,200)」的巨型爆破威力，並將高階武器升星強化！
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEVEL 8 -->
+        <div class="level-card" style="border: 2px solid #1d3b2a; background: #f8faf8;">
+          <div class="level-header">
+            <div class="level-title">
+              <span class="level-num" style="background:var(--red);">第 8 關（最終決戰）</span>
+              <h3>王座的終極試煉・刀之首領降臨</h3>
+            </div>
+            <div class="level-meta">
+              <span class="pill pill-red">怪數：28 隻（含四首領波次）</span>
+              <span class="pill pill-blue">生怪間隔：1.6 秒</span>
+              <span class="pill pill-amber">關卡時長：約 75 秒</span>
+              <span class="pill pill-purple">本關金幣：$5,700</span>
+            </div>
+          </div>
+          <div class="level-body">
+            <div class="level-block">
+              <h4>👾 怪物陣容與配置</h4>
+              <div class="monster-tags">
+                <span class="monster-tag">裝甲騎兵 (100 HP) × 5 隻</span>
+                <span class="monster-tag">忍者 (150 HP) × 5 隻</span>
+                <span class="monster-tag">惡魔靈 (250 HP) × 4 隻</span>
+                <span class="monster-tag">死神 (300 HP) × 5 隻</span>
+                <span class="monster-tag">手槍兵 (500 HP) × 5 隻</span>
+                <span class="monster-tag" style="border-color:var(--amber);color:var(--amber);">★ AI-Gemini (750 HP) × 2 隻</span>
+                <span class="monster-tag" style="border-color:var(--red);color:var(--red);background:#fee2e2;">👑 刀之首領 (1000 HP) × 2 隻</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:0.88rem;color:var(--muted);">總血量 9,750 HP！中場與關底皆有「AI-Gemini + 刀之首領」聯手壓境！</p>
+            </div>
+            <div class="level-block">
+              <h4>⚔️ 終極出戰配置</h4>
+              <p style="margin:0;font-size:0.9rem;">
+                <strong>推薦配置</strong>：🚀 愛國者 ★3（範圍轟炸控場）＋ 🗡️ 飛刀 ★3 或 🎯 AWM ★3（按 Q 切換點殺首領）
+              </p>
+            </div>
+            <div class="level-block">
+              <h4>💡 設計師節奏說明</h4>
+              <p style="margin:0;font-size:0.88rem;color:var(--muted);">
+                新增的 4 把高階武器（AWM、飛刀、RPG、愛國者）讓後期累積的上萬金幣有了最華麗的發揮空間，玩家可以開著愛國者飛彈車轟炸全場，完成最終決戰！
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 八關卡全局曲線總表 -->
+    <section class="card">
+      <h2 class="section-title">6. 八關卡全局曲線總表（DPS 需求 vs 12 武器經濟對照）</h2>
+      <p class="section-desc">以下總表呈現第 1 關至第 8 關的總血量、平均 DPS 門檻，以及對應金幣可解鎖與升星的 12 把武器進度。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>關卡</th>
+              <th>新登場怪物</th>
+              <th class="num">怪物總數</th>
+              <th class="num">生怪間隔</th>
+              <th class="num">關卡總 HP</th>
+              <th class="num">預估時長</th>
+              <th class="num">最低平均 DPS</th>
+              <th>主力推薦武器 (★1 ~ ★3 DPS)</th>
+              <th class="num">本關金幣</th>
+              <th class="num">累積總金幣 (無傷可再+10%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>第 1 關</strong></td>
+              <td>方塊殭屍</td>
+              <td class="num">18 隻</td>
+              <td class="num">2.40 秒</td>
+              <td class="num">360</td>
+              <td class="num">~50 秒</td>
+              <td class="num">7.2 / 秒</td>
+              <td>拳頭 (14.0) → 途中買鐮刀 (17.8) / 長刀 (23.7)</td>
+              <td class="num">$180</td>
+              <td class="num">$180</td>
+            </tr>
+            <tr>
+              <td><strong>第 2 關</strong></td>
+              <td>冠帽小戰士</td>
+              <td class="num">22 隻</td>
+              <td class="num">2.10 秒</td>
+              <td class="num">600</td>
+              <td class="num">~55 秒</td>
+              <td class="num">10.9 / 秒</td>
+              <td>長刀 (23.7) / 弓 (20.0 遠程)</td>
+              <td class="num">$380</td>
+              <td class="num">$560</td>
+            </tr>
+            <tr>
+              <td><strong>第 3 關</strong></td>
+              <td>裝甲騎兵</td>
+              <td class="num">24 隻</td>
+              <td class="num">1.90 秒</td>
+              <td class="num">1,080</td>
+              <td class="num">~55 秒</td>
+              <td class="num">19.6 / 秒</td>
+              <td>M1911 (33.3) / GL06 (爆破控場)</td>
+              <td class="num">$690</td>
+              <td class="num">$1,250</td>
+            </tr>
+            <tr>
+              <td><strong>第 4 關</strong></td>
+              <td>忍者</td>
+              <td class="num">25 隻</td>
+              <td class="num">1.80 秒</td>
+              <td class="num">1,750</td>
+              <td class="num">~55 秒</td>
+              <td class="num">31.8 / 秒</td>
+              <td>M1911 ★2 (48.1) / AK-47 (68.2)</td>
+              <td class="num">$1,160</td>
+              <td class="num">$2,410</td>
+            </tr>
+            <tr>
+              <td><strong>第 5 關</strong></td>
+              <td>魔法師、惡魔靈</td>
+              <td class="num">26 隻</td>
+              <td class="num">1.75 秒</td>
+              <td class="num">3,360</td>
+              <td class="num">~60 秒</td>
+              <td class="num">56.0 / 秒</td>
+              <td>AK-47 (68.2) / M134 (178.6) / AWM (208.3)</td>
+              <td class="num">$1,990</td>
+              <td class="num">$4,400</td>
+            </tr>
+            <tr>
+              <td><strong>第 6 關</strong></td>
+              <td>死神</td>
+              <td class="num">26 隻</td>
+              <td class="num">1.70 秒</td>
+              <td class="num">5,030</td>
+              <td class="num">~60 秒</td>
+              <td class="num">83.8 / 秒</td>
+              <td>AWM (208.3) / 飛刀 (272.7) / RPG (239.6 爆破)</td>
+              <td class="num">$2,950</td>
+              <td class="num">$7,350</td>
+            </tr>
+            <tr>
+              <td><strong>第 7 關</strong></td>
+              <td>手槍兵、AI-Gemini</td>
+              <td class="num">25 隻</td>
+              <td class="num">1.65 秒</td>
+              <td class="num">7,880</td>
+              <td class="num">~65 秒</td>
+              <td class="num">121.2 / 秒</td>
+              <td>愛國者 (307.7 巨型轟炸) / 飛刀 ★2 (375.0)</td>
+              <td class="num">$4,590</td>
+              <td class="num">$11,940</td>
+            </tr>
+            <tr>
+              <td><strong>第 8 關</strong></td>
+              <td>刀之首領</td>
+              <td class="num">28 隻</td>
+              <td class="num">1.60 秒</td>
+              <td class="num">9,750</td>
+              <td class="num">~75 秒</td>
+              <td class="num">130.0 / 秒</td>
+              <td>愛國者 ★3 (590.5 轟炸) + 飛刀 ★3 (516.7)</td>
+              <td class="num">$5,700</td>
+              <td class="num">$17,640</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      《蛋仔守城 Egg Defense》V2.1 遊戲設計規格書 · 已同步最新 12 武器與隨身商店規則 · <code>docs/game-v2-design.html</code>
+    </footer>
+  </div>
+</body>
+</html>
