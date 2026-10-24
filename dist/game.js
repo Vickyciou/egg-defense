@@ -391,18 +391,36 @@
   const joystick = { pointerId: null, x: 0, y: 0 };
 
   const weaponHoldConfigs = {
-    1:  { w: 72, h: 72, gripX: 16, gripY: 54, angle: 0.12 },   // 鐮刀
-    2:  { w: 52, h: 78, gripX: 25, gripY: 64, angle: 0.52 },   // 長刀
-    3:  { w: 58, h: 66, gripX: 40, gripY: 34, angle: 0.02 },   // 弓
-    4:  { w: 62, h: 46, gripX: 17, gripY: 28, angle: -0.04 },  // M1911
-    5:  { w: 84, h: 46, gripX: 27, gripY: 28, angle: -0.04 },  // GL06
-    6:  { w: 88, h: 48, gripX: 33, gripY: 28, angle: -0.04 },  // AK-47
-    7:  { w: 86, h: 56, gripX: 32, gripY: 36, angle: -0.03 },  // M134
-    8:  { w: 96, h: 44, gripX: 26, gripY: 28, angle: -0.04 },  // AWM (flipped)
-    9:  { w: 68, h: 28, gripX: 26, gripY: 14, angle: -0.05 },  // 飛刀
-    10: { w: 78, h: 60, gripX: 28, gripY: 42, angle: -0.02 },  // 愛國者 (flipped)
-    11: { w: 94, h: 42, gripX: 34, gripY: 26, angle: -0.04 }   // RPG (flipped)
+    1:  { w: 72, h: 72, gripX: 16, gripY: 54, angle: 0.12 },                          // 鐮刀
+    2:  { w: 52, h: 78, gripX: 25, gripY: 64, angle: 0.52 },                          // 長刀
+    3:  { w: 58, h: 66, gripX: 40, gripY: 34, angle: 0.02,  muzzleX: 10, muzzleY: 0 },   // 弓
+    4:  { w: 62, h: 46, gripX: 17, gripY: 28, angle: -0.04, muzzleX: 34, muzzleY: -17 }, // M1911
+    5:  { w: 84, h: 46, gripX: 27, gripY: 28, angle: -0.04, muzzleX: 49, muzzleY: -12 }, // GL06
+    6:  { w: 88, h: 48, gripX: 33, gripY: 28, angle: -0.04, muzzleX: 52, muzzleY: -7 },  // AK-47
+    7:  { w: 86, h: 56, gripX: 32, gripY: 36, angle: -0.03, muzzleX: 38, muzzleY: -11 }, // M134
+    8:  { w: 96, h: 44, gripX: 26, gripY: 28, angle: -0.04, muzzleX: 68, muzzleY: -10 }, // AWM (flipped)
+    9:  { w: 68, h: 28, gripX: 26, gripY: 14, angle: -0.05, muzzleX: 24, muzzleY: 0 },   // 飛刀
+    10: { w: 78, h: 60, gripX: 28, gripY: 42, angle: -0.02, muzzleX: 126, muzzleY: -22 },// 愛國者 (mounted vehicle)
+    11: { w: 94, h: 42, gripX: 34, gripY: 26, angle: -0.04, muzzleX: 58, muzzleY: -11 }  // RPG (flipped)
   };
+
+  function getWeaponMuzzleWorldPos(weaponId = selectedWeaponId) {
+    if (weaponId === 10) {
+      return { x: player.x + 126, y: player.y - 22 };
+    }
+    const cfg = weaponHoldConfigs[weaponId] || { muzzleX: 36, muzzleY: -10, angle: -0.04 };
+    const handX = player.width * 0.21;
+    const handY = -player.height * 0.47;
+    const mx = cfg.muzzleX ?? 36;
+    const my = cfg.muzzleY ?? -10;
+    const rot = cfg.angle || 0;
+    const cos = Math.cos(rot);
+    const sin = Math.sin(rot);
+    return {
+      x: player.x + handX + (mx * cos - my * sin),
+      y: player.y + handY + (mx * sin + my * cos)
+    };
+  }
 
   function loadImages() {
     return Promise.all(Object.entries(assetPaths).map(([key, path]) => new Promise(resolve => {
@@ -713,6 +731,7 @@
       });
       hits.forEach(monster => damageMonster(monster, dmg));
     } else if (weapon.explosive) {
+      const muzzle = getWeaponMuzzleWorldPos(weapon.id);
       const maxReachX = Math.min(WIDTH - 190, player.x + stats.range);
       const candidates = monsters
         .filter(m => !m.dead && m.x > player.x + 15 && m.x <= maxReachX && Math.abs(m.y - player.y) <= stats.laneWidth)
@@ -721,14 +740,13 @@
       const impactX = candidates.length ? candidates[0].x : maxReachX;
       const impactY = candidates.length ? candidates[0].y : player.y - 10;
 
-      const launchX = weapon.id === 10 ? player.x + 125 : player.x + 50;
-      const launchY = weapon.id === 10 ? player.y - 42 : player.y - 18;
-
       projectiles.push({
-        x: launchX,
+        startX: muzzle.x,
+        x: muzzle.x,
         endX: impactX,
-        y: launchY,
+        y: muzzle.y,
         life: 0.18,
+        maxLife: 0.18,
         weaponId: weapon.id
       });
 
@@ -750,6 +768,7 @@
         }
       });
     } else {
+      const muzzle = getWeaponMuzzleWorldPos(weapon.id);
       const maxReachX = Math.min(WIDTH - 190, player.x + stats.range);
       monsters.forEach(monster => {
         const dx = monster.x - player.x;
@@ -758,22 +777,24 @@
           hits.push(monster);
         }
       });
-      if (weapon.id === 9) {
+      if (weapon.id === 3 || weapon.id === 9) {
         projectiles.push({
-          startX: player.x + 38,
-          x: player.x + 38,
+          startX: muzzle.x,
+          x: muzzle.x,
           endX: maxReachX,
-          y: player.y - 38 + (Math.random() - 0.5) * 20,
+          y: muzzle.y + (weapon.id === 9 ? (Math.random() - 0.5) * 16 : 0),
           life: 0.28,
           maxLife: 0.28,
           weaponId: weapon.id
         });
       } else {
         projectiles.push({
-          x: player.x + 50,
+          startX: muzzle.x,
+          x: muzzle.x,
           endX: maxReachX,
-          y: player.y - 18 + (weapon.id === 7 ? (Math.random() - 0.5) * 14 : 0),
+          y: muzzle.y + (weapon.id === 7 ? (Math.random() - 0.5) * 10 : 0),
           life: 0.16,
+          maxLife: 0.16,
           weaponId: weapon.id
         });
       }
@@ -880,7 +901,7 @@
 
     projectiles.forEach(shot => {
       shot.life -= dt;
-      if (shot.weaponId === 9 && shot.maxLife) {
+      if ((shot.weaponId === 3 || shot.weaponId === 9) && shot.maxLife) {
         const progress = Math.min(1, 1 - shot.life / shot.maxLife);
         shot.x = shot.startX + (shot.endX - shot.startX) * progress;
       } else {
@@ -1427,11 +1448,11 @@
         ctx.globalAlpha = attackProgress;
         ctx.fillStyle = "#ff9c38";
         ctx.beginPath();
-        ctx.arc(142 + podRecoil, -42, 16, 0, Math.PI * 2);
+        ctx.arc(126 + podRecoil, -22, 16, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#fff6b0";
         ctx.beginPath();
-        ctx.arc(142 + podRecoil, -42, 9, 0, Math.PI * 2);
+        ctx.arc(126 + podRecoil, -22, 9, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }
@@ -1485,6 +1506,56 @@
         ctx.restore();
       } else {
         ctx.drawImage(images[`weapon-${weapon.id}`], -cfg.gripX, -cfg.gripY, cfg.w, cfg.h);
+      }
+
+      // If holding Bow (weapon 3), draw a nocked arrow on the bow
+      if (weapon.id === 3) {
+        const pullBack = attackProgress > 0 ? -attackProgress * 10 : 0;
+        ctx.save();
+        ctx.translate(pullBack, 0);
+        // Arrow shaft on bow
+        ctx.strokeStyle = "#6b3e1b";
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.moveTo(-24, 0);
+        ctx.lineTo(14, 0);
+        ctx.stroke();
+        // Steel arrowhead on bow
+        ctx.fillStyle = "#e2e8f0";
+        ctx.strokeStyle = "#17241f";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(22, 0);
+        ctx.lineTo(11, -5);
+        ctx.lineTo(13, 0);
+        ctx.lineTo(11, 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw muzzle flash directly at the gun barrel tip (muzzleX, muzzleY) when firing firearms/launchers
+      if (!weapon.melee && weapon.id !== 3 && weapon.id !== 9 && attackProgress > 0 && cfg.muzzleX !== undefined) {
+        ctx.save();
+        ctx.translate(cfg.muzzleX, cfg.muzzleY);
+        ctx.globalAlpha = Math.min(1, attackProgress * 1.25);
+        const flashRadius = weapon.id === 8 || weapon.id === 11 || weapon.id === 5 ? 14 : 10;
+        ctx.fillStyle = weapon.id === 8 ? "#38bdf8" : "#ff8c24";
+        ctx.beginPath();
+        ctx.moveTo(0, -flashRadius * 0.65);
+        ctx.lineTo(flashRadius * 1.85, 0);
+        ctx.lineTo(0, flashRadius * 0.65);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(2, 0, flashRadius * 0.72, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#fff9c4";
+        ctx.beginPath();
+        ctx.arc(3, 0, flashRadius * 0.42, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
       }
 
       // Draw fingers/hand clasping over the weapon grip so it looks genuinely held in hand
@@ -1568,6 +1639,74 @@
       ctx.restore();
     }
     projectiles.forEach(shot => {
+      if (shot.weaponId === 3) {
+        const fade = shot.life < 0.06 ? shot.life / 0.06 : 1;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, fade);
+
+        // Subtle wind trail behind the flying arrow
+        const trailStart = Math.max(shot.startX || (shot.x - 70), shot.x - 85);
+        if (shot.x > trailStart + 12) {
+          ctx.strokeStyle = "rgba(255, 244, 184, 0.55)";
+          ctx.lineWidth = 4;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(trailStart, shot.y);
+          ctx.lineTo(shot.x - 28, shot.y);
+          ctx.stroke();
+        }
+
+        // Draw actual flying Arrow (箭矢)
+        ctx.translate(shot.x, shot.y);
+
+        // Feather fletching (紅白箭羽) at tail
+        ctx.fillStyle = "#ef4444";
+        ctx.strokeStyle = "#17241f";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-34, 0);
+        ctx.lineTo(-44, -7);
+        ctx.lineTo(-24, -7);
+        ctx.lineTo(-18, 0);
+        ctx.lineTo(-24, 7);
+        ctx.lineTo(-44, 7);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Wooden arrow shaft (箭桿)
+        ctx.strokeStyle = "#17241f";
+        ctx.lineWidth = 6.5;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(-34, 0);
+        ctx.lineTo(14, 0);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#9c5a25";
+        ctx.lineWidth = 3.6;
+        ctx.beginPath();
+        ctx.moveTo(-34, 0);
+        ctx.lineTo(14, 0);
+        ctx.stroke();
+
+        // Sharp steel arrowhead (銀白箭鏃)
+        ctx.fillStyle = "#f1f5f9";
+        ctx.strokeStyle = "#17241f";
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(30, 0);
+        ctx.lineTo(10, -8);
+        ctx.lineTo(14, 0);
+        ctx.lineTo(10, 8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+        return;
+      }
+
       if (shot.weaponId === 9 && images["weapon-9"]) {
         const fade = shot.life < 0.06 ? shot.life / 0.06 : 1;
         ctx.save();
