@@ -698,17 +698,167 @@ kbd { border: 1px solid rgba(255,255,255,.25); border-bottom-width: 3px; border-
   text-align: right;
 }
 
-.result-card,
 .pause-card { width: min(510px, 90%); text-align: center; }
-.result-badge,
 .pause-symbol { width: 64px; aspect-ratio: 1; margin: -7px auto 16px; display: grid; place-items: center; border: 3px solid var(--ink); border-radius: 50%; background: var(--yellow); box-shadow: 4px 4px 0 var(--ink); font: 900 32px/1 "Yusei Magic", sans-serif; }
-.result-card h2,
 .pause-card h2 { font-size: clamp(25px, 2.8vw, 40px); }
-.result-card > p:not(.eyebrow) { color: #67746e; }
-.result-stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 28px; margin: 20px 0; }
-.result-stats div { text-align: center; }
-.result-stats strong { display: block; font-size: 22px; }
-.result-stats span { color: #78837e; font-size: 11px; }
+
+/* Dedicated Victory / Defeat Result Screen */
+.result-screen-layer.is-victory {
+  background: radial-gradient(circle at 50% 35%, rgba(255, 224, 102, 0.35), rgba(13, 38, 25, 0.72) 72%);
+}
+.result-screen-layer.is-campaign-clear {
+  background: radial-gradient(circle at 50% 35%, rgba(255, 214, 75, 0.48), rgba(20, 30, 56, 0.78) 75%);
+}
+.result-screen-layer.is-defeat {
+  background: radial-gradient(circle at 50% 35%, rgba(229, 62, 62, 0.38), rgba(24, 12, 16, 0.82) 75%);
+}
+
+.result-card {
+  width: min(640px, 92%);
+  text-align: center;
+  position: relative;
+  padding-top: clamp(26px, 3vw, 38px);
+  animation: result-card-pop .38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes result-card-pop {
+  0% { transform: scale(0.84) translateY(20px); opacity: 0; }
+  65% { transform: scale(1.03) translateY(-3px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.result-card.is-victory {
+  background: linear-gradient(180deg, #fffdf0 0%, #fff9db 100%);
+  border-color: #975a16;
+  box-shadow: 0 0 0 4px rgba(255, 214, 75, 0.55), 10px 12px 0 rgba(18, 36, 28, 0.8);
+}
+.result-card.is-campaign-clear {
+  background: linear-gradient(180deg, #fffaf0 0%, #fefcbf 100%);
+  border-color: #b7791f;
+  box-shadow: 0 0 36px rgba(255, 214, 75, 0.65), 10px 12px 0 rgba(18, 36, 28, 0.85);
+}
+.result-card.is-defeat {
+  background: linear-gradient(180deg, #fff5f5 0%, #fffaf0 100%);
+  border-color: #9b2c2c;
+  box-shadow: 0 0 0 4px rgba(245, 101, 101, 0.4), 10px 12px 0 rgba(36, 14, 18, 0.85);
+}
+
+.result-ribbon {
+  display: inline-block;
+  margin: -10px auto 8px;
+  padding: 6px 24px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  font-family: "Yusei Magic", sans-serif;
+  font-size: clamp(14px, 1.4vw, 19px);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  box-shadow: 3px 4px 0 var(--ink);
+  background: linear-gradient(90deg, #ffd64b, #f6ad55);
+  color: #17241f;
+}
+.result-card.is-defeat .result-ribbon {
+  background: linear-gradient(90deg, #fc8181, #e53e3e);
+  color: #ffffff;
+}
+
+.result-stars {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 10px;
+  font-size: clamp(28px, 3.2vw, 42px);
+  line-height: 1;
+}
+.result-stars .star {
+  color: #cbd5e0;
+  text-shadow: 2px 2px 0 rgba(23, 36, 31, 0.35);
+  display: inline-block;
+  transform: scale(0.9);
+}
+.result-stars .star.is-lit {
+  color: #fbbf24;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.65), 2px 3px 0 #744210;
+  animation: star-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+.result-stars .star.is-lit:nth-child(2) {
+  animation-delay: 0.12s;
+  font-size: 1.18em;
+}
+.result-stars .star.is-lit:nth-child(3) {
+  animation-delay: 0.24s;
+}
+@keyframes star-pop {
+  0% { transform: scale(0) rotate(-25deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.result-hero-scene {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin: 6px auto 12px;
+}
+.result-hero-avatar {
+  width: 74px;
+  height: 78px;
+  object-fit: contain;
+  filter: drop-shadow(3px 4px 0 rgba(23, 36, 31, 0.3));
+}
+.result-hero-weapon {
+  width: 68px;
+  height: 52px;
+  object-fit: contain;
+  filter: drop-shadow(2px 3px 0 rgba(23, 36, 31, 0.25));
+}
+.result-badge {
+  width: 68px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--yellow);
+  box-shadow: 4px 4px 0 var(--ink);
+  font: 900 34px/1 "Yusei Magic", sans-serif;
+}
+
+.result-card h2 {
+  font-size: clamp(24px, 2.7vw, 38px);
+  margin: 4px 0 6px;
+}
+.result-card > p:not(.eyebrow) {
+  color: #4a5751;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin: 6px auto 14px;
+  max-width: 520px;
+}
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 10px;
+  margin: 12px 0 18px;
+}
+.result-stats div {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.88);
+  border: 2px solid #cbd5e0;
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: 2px 3px 0 rgba(23, 36, 31, 0.14);
+}
+.result-stats strong {
+  display: block;
+  font-size: 20px;
+  color: var(--ink);
+}
+.result-stats span {
+  color: #5c6863;
+  font-size: 11.5px;
+  font-weight: 800;
+}
 .text-button { display: block; margin: 17px auto 0; border: 0; background: transparent; color: #5c6863; text-decoration: underline; cursor: pointer; font-weight: 700; }
 
 /* Touch controls: Virtual Joystick (Left) & Attack Button (Right) */

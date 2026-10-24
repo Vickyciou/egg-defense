@@ -332,12 +332,14 @@
     "start-level-button", "select-shop-button",
     "selection-kicker", "selection-copy", "shop-screen", "shop-kicker", "shop-subtitle", "shop-feedback",
     "shop-tabs", "shop-list", "shop-prev-page", "shop-next-page", "shop-page-indicator",
-    "shop-gold", "finish-shop-button", "result-screen", "result-badge", "result-kicker", "result-title",
+    "shop-gold", "finish-shop-button", "result-screen", "result-card", "result-ribbon",
+    "result-stars", "result-hero-scene", "result-badge", "result-kicker", "result-title",
     "result-copy", "result-stats", "result-button", "result-shop-button",
     "pause-screen", "pause-button", "pause-shop-button", "resume-button",
     "restart-button", "enter-select-button", "joystick", "joystick-knob", "attack-button",
     "dev-hud-button", "dev-panel", "dev-status-tag", "dev-sandbox-toggle", "dev-clear-monsters",
-    "dev-add-gold", "dev-minimize-btn", "dev-exit-btn", "dev-weapon-grid", "dev-monster-grid"
+    "dev-add-gold", "dev-test-win", "dev-test-lose", "dev-minimize-btn", "dev-exit-btn",
+    "dev-weapon-grid", "dev-monster-grid"
   ].map(id => [id, document.getElementById(id)]));
 
   const images = {};
@@ -384,6 +386,8 @@
   let projectiles = [];
   let enemySpells = [];
   let floatingTexts = [];
+  let celebrationParticles = [];
+  let resultParticleTimer = 0;
   let shake = 0;
   let elapsed = 0;
   const keys = new Set();
@@ -599,6 +603,7 @@
 
   function openWeaponSelection() {
     state = "selecting";
+    celebrationParticles = [];
     showControls(false);
     setScreen("weapon-screen");
     ui["selection-kicker"].textContent = `第 ${level} / ${TOTAL_LEVELS} 關 · 戰前準備`;
@@ -687,6 +692,7 @@
     projectiles = [];
     enemySpells = [];
     floatingTexts = [];
+    celebrationParticles = [];
     player.x = 425;
     player.y = 615;
     checkpoint = {
@@ -928,6 +934,29 @@
     floatingTexts.forEach(ft => { ft.life -= dt; ft.y -= dt * 38; });
     floatingTexts = floatingTexts.filter(ft => ft.life > 0);
 
+    celebrationParticles.forEach(p => {
+      p.life -= dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += p.gravity * dt;
+      p.rot += p.vRot * dt;
+    });
+    celebrationParticles = celebrationParticles.filter(p => p.life > 0);
+
+    if (state === "victory" || state === "complete") {
+      resultParticleTimer -= dt;
+      if (resultParticleTimer <= 0) {
+        resultParticleTimer = 0.55;
+        spawnCelebrationBurst(18);
+      }
+    } else if (state === "result") {
+      resultParticleTimer -= dt;
+      if (resultParticleTimer <= 0) {
+        resultParticleTimer = 0.35;
+        spawnDefeatEmbers(10);
+      }
+    }
+
     if (state !== "playing") return;
 
     let dx = 0;
@@ -999,23 +1028,116 @@
     }
   }
 
+  function spawnCelebrationBurst(count = 50) {
+    const colors = ["#ffd64b", "#ff7a45", "#52e587", "#48bbff", "#f687b3", "#fff59d", "#a3bffa"];
+    const originX = 280 + Math.random() * (WIDTH - 560);
+    const originY = 140 + Math.random() * 260;
+    for (let i = 0; i < count; i += 1) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 90 + Math.random() * 340;
+      const life = 1.4 + Math.random() * 1.4;
+      celebrationParticles.push({
+        kind: Math.random() < 0.3 ? "star" : "confetti",
+        x: originX + (Math.random() - 0.5) * 80,
+        y: originY + (Math.random() - 0.5) * 40,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 120,
+        gravity: 260 + Math.random() * 120,
+        size: 8 + Math.random() * 9,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 10,
+        life,
+        maxLife: life
+      });
+    }
+  }
+
+  function spawnDefeatEmbers(count = 28) {
+    const colors = ["#ff4f35", "#ff9248", "#ffc15e", "#4a5568", "#718096"];
+    for (let i = 0; i < count; i += 1) {
+      const life = 1.3 + Math.random() * 1.2;
+      celebrationParticles.push({
+        kind: "ember",
+        x: GATE.x - 40 + Math.random() * 480,
+        y: HEIGHT - 40 - Math.random() * 180,
+        vx: -30 + Math.random() * 90,
+        vy: -80 - Math.random() * 150,
+        gravity: -25,
+        size: 5 + Math.random() * 8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 4,
+        life,
+        maxLife: life
+      });
+    }
+  }
+
+  function applyResultTheme(themeClass) {
+    if (ui["result-screen"]) {
+      ui["result-screen"].classList.remove("is-victory", "is-defeat", "is-campaign-clear");
+      ui["result-screen"].classList.add(themeClass);
+    }
+    if (ui["result-card"]) {
+      ui["result-card"].classList.remove("result-card-pop");
+      void ui["result-card"].offsetWidth;
+      ui["result-card"].classList.add("result-card-pop");
+    }
+  }
+
+  function renderResultStars(starCount) {
+    if (!ui["result-stars"]) return;
+    ui["result-stars"].innerHTML = [1, 2, 3].map(idx => {
+      const lit = idx <= starCount;
+      return `<span class="result-star${lit ? " is-lit" : ""}">${lit ? "★" : "☆"}</span>`;
+    }).join("");
+  }
+
+  function renderResultHeroScene(badgeEmoji) {
+    if (!ui["result-hero-scene"]) return;
+    const weapon = weapons[selectedWeaponId] || weapons[0];
+    const weaponTag = weapon.icon
+      ? `<img class="result-hero-weapon" src="${weapon.icon}" alt="${weapon.name}" />`
+      : `<div class="result-badge" style="width:52px;height:52px;font-size:1.6rem;">✊</div>`;
+    ui["result-hero-scene"].innerHTML = `
+      <img class="result-hero-avatar" src="assets/character/main.png" alt="蛋仔主角" />
+      <div class="result-badge" id="result-badge">${badgeEmoji}</div>
+      ${weaponTag}
+    `;
+  }
+
   function loseLevel() {
     state = "result";
     attackHeld = false;
     showControls(false);
-    ui["result-badge"].textContent = "!";
-    ui["result-badge"].style.background = "var(--yellow)";
-    ui["result-kicker"].textContent = `第 ${level} 關 · 城門失守`;
+    celebrationParticles = [];
+    resultParticleTimer = 0.25;
+    spawnDefeatEmbers(42);
+
+    applyResultTheme("is-defeat");
+    if (ui["result-ribbon"]) {
+      ui["result-ribbon"].textContent = "💥 STAGE FAILED · 城門失守";
+    }
+    renderResultStars(0);
+    renderResultHeroScene("💔");
+
+    ui["result-kicker"].textContent = `第 ${level} / ${TOTAL_LEVELS} 關 · ${levels[level].title}`;
     ui["result-title"].textContent = "城門耐久度歸零！";
-    ui["result-copy"].textContent = "別氣餒！本關擊斃怪物賺到的金幣已全數入袋保留，可隨時開啟補給小舖購買或強化武器再挑戰！";
+    ui["result-copy"].textContent = "別氣餒！本關擊斃怪物賺到的金幣已全數入袋保留，可先前往補給小舖購買或強化武器再挑戰！";
     ui["result-stats"].innerHTML = `
       <div><strong>${defeated}</strong><span>親手擊斃</span></div>
+      <div><strong>0 / ${MAX_GATE_HP}</strong><span>城門剩餘耐久</span></div>
       <div><strong>+$${levelEarned}</strong><span>本關保留金幣</span></div>
       <div><strong>$${gold}</strong><span>目前持有金幣</span></div>
     `;
-    ui["result-button"].innerHTML = '重新挑戰本關 <span>↻</span>';
+    ui["result-button"].innerHTML = `重新挑戰第 ${level} 關 <span>↻</span>`;
     ui["result-button"].dataset.action = "retry";
-    if (ui["result-shop-button"]) ui["result-shop-button"].classList.remove("is-hidden");
+    if (ui["result-shop-button"]) {
+      ui["result-shop-button"].classList.remove("is-hidden");
+      ui["result-shop-button"].dataset.origin = "result";
+      ui["result-shop-button"].innerHTML = "🛒 先去補給小舖強化武器";
+    }
     setScreen("result-screen");
     updateHUD();
   }
@@ -1028,27 +1150,67 @@
       gold += lastBonus;
     }
 
+    celebrationParticles = [];
+    resultParticleTimer = 0.35;
+    spawnCelebrationBurst(65);
+
     if (level < TOTAL_LEVELS) {
-      openShop("win");
+      state = "victory";
+      const stars = gateHp >= MAX_GATE_HP ? 3 : gateHp >= MAX_GATE_HP * 0.5 ? 2 : 1;
+      applyResultTheme("is-victory");
+      if (ui["result-ribbon"]) {
+        ui["result-ribbon"].textContent = stars === 3
+          ? "🏆 PERFECT CLEAR · 完美無傷守城"
+          : "🎉 STAGE CLEAR · 守城大捷";
+      }
+      renderResultStars(stars);
+      renderResultHeroScene(stars === 3 ? "🏆" : "🛡️");
+
+      ui["result-kicker"].textContent = `第 ${level} / ${TOTAL_LEVELS} 關過關 · ${levels[level].title}`;
+      ui["result-title"].textContent = stars === 3 ? "完美守住蛋仔城門！" : `第 ${level} 關守城成功！`;
+      ui["result-copy"].textContent = lastBonus > 0
+        ? `城門毫髮無傷！額外獲得 10% 完美守城獎金 +$${lastBonus}！可先去補給小舖強化武器，或直接前往第 ${level + 1} 關！`
+        : `成功擊退所有來襲怪物！即將進入第 ${level + 1} 關「${levels[level + 1].title}」，可先至補給小舖添購或升星武器。`;
+      ui["result-stats"].innerHTML = `
+        <div><strong>${defeated}</strong><span>親手擊斃</span></div>
+        <div><strong>${gateHp} / ${MAX_GATE_HP}</strong><span>城門剩餘耐久</span></div>
+        <div><strong>+$${levelEarned + lastBonus}</strong><span>本關總進帳</span></div>
+        <div><strong>$${gold}</strong><span>目前持有金幣</span></div>
+      `;
+      ui["result-button"].innerHTML = `前往第 ${level + 1} 關準備 <span>→</span>`;
+      ui["result-button"].dataset.action = "next-level";
+      if (ui["result-shop-button"]) {
+        ui["result-shop-button"].classList.remove("is-hidden");
+        ui["result-shop-button"].dataset.origin = "win";
+        ui["result-shop-button"].innerHTML = "🛒 前往補給小舖強化";
+      }
+      setScreen("result-screen");
+      updateHUD();
       return;
     }
 
     state = "complete";
-    ui["result-badge"].textContent = "👑";
-    ui["result-badge"].style.background = "#bce88f";
-    ui["result-kicker"].textContent = "八關戰役全數通關！";
+    applyResultTheme("is-campaign-clear");
+    if (ui["result-ribbon"]) {
+      ui["result-ribbon"].textContent = "👑 CAMPAIGN COMPLETE · 八關傳奇通關";
+    }
+    renderResultStars(3);
+    renderResultHeroScene("👑");
+
+    ui["result-kicker"].textContent = "八關戰役全數通關 · 蛋仔王國救世主";
     ui["result-title"].textContent = "傳奇蛋仔守城指揮官！";
     ui["result-copy"].textContent = "你成功擊潰刀之首領與 AI-Gemini 率領的十種怪物大軍，完美守護了蛋仔王國！";
     ui["result-stats"].innerHTML = `
       <div><strong>8 / 8</strong><span>通關戰役</span></div>
       <div><strong>${gateHp} HP</strong><span>最終城門耐久</span></div>
-      <div><strong>$${gold}</strong><span>結餘金幣</span></div>
-      <div><strong>${owned.size} / ${weapons.length}</strong><span>解鎖武器</span></div>
+      <div><strong>$${gold}</strong><span>結餘總金幣</span></div>
+      <div><strong>${owned.size} / ${weapons.length}</strong><span>解鎖武器庫</span></div>
     `;
-    ui["result-button"].innerHTML = '再玩一局 <span>↻</span>';
+    ui["result-button"].innerHTML = '👑 再玩一局新戰役 <span>↻</span>';
     ui["result-button"].dataset.action = "new-game";
     if (ui["result-shop-button"]) ui["result-shop-button"].classList.add("is-hidden");
     setScreen("result-screen");
+    updateHUD();
   }
 
   function showShopFeedback(html) {
@@ -1298,7 +1460,36 @@
     drawBursts();
     drawGateWarning();
     drawFloatingTexts();
+    drawCelebrationParticles();
     ctx.restore();
+  }
+
+  function drawCelebrationParticles() {
+    if (!celebrationParticles.length) return;
+    celebrationParticles.forEach(p => {
+      const alpha = Math.max(0, Math.min(1, p.life / (p.maxLife * 0.45)));
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if (p.kind === "ember") {
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * 0.55, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.kind === "star") {
+        ctx.shadowColor = "#ffd64b";
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-p.size * 0.5, -p.size * 0.28, p.size, p.size * 0.56);
+      }
+      ctx.restore();
+    });
   }
 
   function drawPlayer() {
@@ -1891,6 +2082,8 @@
     if (event.code === "KeyB" && down && !event.repeat) {
       if (state === "shop" && shopOrigin !== "win") {
         finishShop();
+      } else if (state === "victory") {
+        openShop("win");
       } else if (["playing", "paused", "selecting", "result"].includes(state)) {
         openShop(state);
       }
@@ -2123,6 +2316,24 @@
       if (state === "shop") renderShop();
     });
   }
+  if (ui["dev-test-win"]) {
+    ui["dev-test-win"].addEventListener("click", () => {
+      if (ui["dev-panel"]) {
+        ui["dev-panel"].classList.add("is-minimized");
+        if (ui["dev-minimize-btn"]) ui["dev-minimize-btn"].textContent = "展開 ▼";
+      }
+      winLevel();
+    });
+  }
+  if (ui["dev-test-lose"]) {
+    ui["dev-test-lose"].addEventListener("click", () => {
+      if (ui["dev-panel"]) {
+        ui["dev-panel"].classList.add("is-minimized");
+        if (ui["dev-minimize-btn"]) ui["dev-minimize-btn"].textContent = "展開 ▼";
+      }
+      loseLevel();
+    });
+  }
   if (ui["dev-exit-btn"]) {
     ui["dev-exit-btn"].addEventListener("click", deactivateDevMode);
   }
@@ -2163,7 +2374,10 @@
     ui["select-shop-button"].addEventListener("click", () => openShop("selecting"));
   }
   if (ui["result-shop-button"]) {
-    ui["result-shop-button"].addEventListener("click", () => openShop("result"));
+    ui["result-shop-button"].addEventListener("click", () => {
+      const origin = ui["result-shop-button"].dataset.origin || (state === "victory" ? "win" : "result");
+      openShop(origin);
+    });
   }
   if (ui["pause-shop-button"]) {
     ui["pause-shop-button"].addEventListener("click", () => openShop("paused"));
@@ -2214,8 +2428,15 @@
     startLevel();
   });
   ui["result-button"].addEventListener("click", () => {
-    if (ui["result-button"].dataset.action === "new-game") newGame();
-    else startLevel();
+    const action = ui["result-button"].dataset.action;
+    if (action === "new-game") {
+      newGame();
+    } else if (action === "next-level") {
+      level = Math.min(TOTAL_LEVELS, level + 1);
+      openWeaponSelection();
+    } else {
+      startLevel();
+    }
   });
 
   window.addEventListener("keydown", event => handleKey(event, true), { passive: false });

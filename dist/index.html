@@ -76,6 +76,8 @@
             </div>
             <div class="dev-panel-actions">
               <button id="dev-sandbox-toggle" class="dev-mini-btn is-active" type="button">🔒 沙盒無敵：開</button>
+              <button id="dev-test-win" class="dev-mini-btn" type="button">🏆 測試勝利畫面</button>
+              <button id="dev-test-lose" class="dev-mini-btn" type="button">💔 測試失敗畫面</button>
               <button id="dev-clear-monsters" class="dev-mini-btn" type="button">🧹 清空怪物</button>
               <button id="dev-add-gold" class="dev-mini-btn" type="button">💰 +$10000</button>
               <button id="dev-minimize-btn" class="dev-mini-btn" type="button">收合 ▲</button>
@@ -202,14 +204,22 @@
           </div>
         </section>
 
-        <section id="result-screen" class="screen-layer is-hidden" aria-live="assertive">
-          <div class="modal-card result-card">
-            <div id="result-badge" class="result-badge">!</div>
+        <section id="result-screen" class="screen-layer result-screen-layer is-hidden" aria-live="assertive">
+          <div id="result-card" class="modal-card result-card">
+            <div id="result-ribbon" class="result-ribbon">STAGE CLEAR</div>
+            <div id="result-stars" class="result-stars" aria-label="過關評價">
+              <span class="star is-lit">★</span>
+              <span class="star is-lit">★</span>
+              <span class="star is-lit">★</span>
+            </div>
+            <div id="result-hero-scene" class="result-hero-scene">
+              <div id="result-badge" class="result-badge">🏆</div>
+            </div>
             <p class="eyebrow" id="result-kicker">城門失守</p>
             <h2 id="result-title">差一點就守住了</h2>
             <p id="result-copy">本關擊斃怪物賺到的金幣已全數保留，可先去補給小舖強化武器再挑戰！</p>
             <div id="result-stats" class="result-stats"></div>
-            <div class="modal-actions">
+            <div class="modal-actions result-actions">
               <button id="result-shop-button" class="secondary-button" type="button">🛒 開啟補給小舖</button>
               <button id="result-button" class="primary-button" type="button">重新挑戰 <span>↻</span></button>
             </div>
